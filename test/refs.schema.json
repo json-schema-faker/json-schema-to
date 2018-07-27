@@ -13,7 +13,6 @@
   },
   {
     "id": "Value",
-    "type": "object",
     "properties": {
       "example": {
         "type": "number"
