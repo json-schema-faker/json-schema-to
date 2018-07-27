@@ -84,8 +84,9 @@ describe('Test', () => {
       console.log('>>>', response);
     } catch (e) {
       console.log('# GraphQL');
-      console.log(e.message);
       console.log(gqlCode);
+
+      throw e;
     }
 
     mockFs({
@@ -164,7 +165,6 @@ describe('Test', () => {
       console.log('# Protobuf');
 
       if (matches) {
-        console.log(e.message);
         console.log(protoCode.trim().split('\n')
           .map((x, l) => `${(matches[1] - 1) === l ? ' >' : '  '} ${`00${l + 1}`.substr(-2)} ${x}`)
           .join('\n'));
