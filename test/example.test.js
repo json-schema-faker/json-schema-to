@@ -1,6 +1,8 @@
 const mockFs = require('mock-fs');
 const expect = require('chai').expect;
 
+const graphql = require('graphql');
+const graphqlTools = require('graphql-tools');
 const grpcLibrary = require('grpc')
 const protoLoader = require('@grpc/proto-loader')
 
@@ -12,6 +14,7 @@ jsf.option({
 });
 
 const jst = require('../lib');
+const { trim } = require('../lib/utils');
 
 const refs = [
   {
@@ -26,9 +29,9 @@ const refs = [
     id: 'ItemValue',
     $ref: 'external.schema.json#/definitions/justAString',
   },
-  {
-    id: 'Empty',
-  },
+  // {
+  //   id: 'Empty',
+  // },
   {
     id: 'Value',
     // FIXME: object causes bugs...
@@ -38,6 +41,8 @@ const refs = [
         type: 'number',
       },
     },
+    // additionalProperties: false,
+    required: ['example'],
   },
 ];
 
@@ -49,7 +54,7 @@ const schema = {
       $ref: 'dataTypes#/definitions/primaryKey',
     },
     value: {
-      $ref: 'external.schema.json#/definitions/justAString',
+      $ref: 'external.schema.json#/definitions/anEnum',
     },
     values: {
       type: 'array',
@@ -58,6 +63,8 @@ const schema = {
       },
     },
   },
+  // additionalProperties: false,
+  // required: ['id', 'value', 'values'],
 };
 
 describe('Test', () => {
@@ -67,15 +74,66 @@ describe('Test', () => {
       refs: ['external'],
       calls: [
         // FIXME: provide this through schemas too?
-        { req: 'something', resp: 'Test', input: 'Value' },
+        { set: 'something', resp: 'Test', input: 'Value', required: true },
+        { get: 'anythingElse', resp: 'Test' },
       ],
     };
 
     const models = await jst.parse(__dirname, refs, schema);
-    const code = jst.generate(package, models, jst.protobufDefs);
+    const gqlCode = jst.generate(package, models, jst.graphqlDefs);
+    const protoCode = jst.generate(package, models, jst.protobufDefs);
+
+    const root = {
+      something() {
+        return 42;
+      },
+      anythingElse() {
+        return 'Hello world!';
+      },
+    };
+
+    const query = `query {
+      anythingElse {
+        id
+      }
+    }`;
+
+    try {
+      const graphqlSchema = trim(`
+        type Query {
+          dummy: [String]
+        }
+        type Mutation {
+          dummy: [String]
+        }
+        schema {
+          query: Query
+          mutation: Mutation
+        }
+      `);
+
+      const gql = graphqlTools.makeExecutableSchema({
+        typeDefs: [graphqlSchema, gqlCode],
+        resolvers: {},
+      });
+
+      // const gql = graphql.buildSchema(...);
+      const response = await graphql.graphql(gql, query, root);
+
+      // console.log(graphqlSchema);
+      // console.log(gqlCode);
+
+      console.log('>>>', response);
+    } catch (e) {
+      console.log('# GraphQL');
+      console.log(e.message);
+      console.log(gqlCode);
+    }
+    return;
 
     mockFs({
-      'generated.proto': Buffer.from(code),
+      'generated.proto': Buffer.from(protoCode),
+      'external.proto': Buffer.from('message Empty {}'),
     });
 
     const serverInstance = new grpcLibrary.Server();
@@ -87,14 +145,17 @@ describe('Test', () => {
 
       expect(packageObject.fooBar.FooBar).not.to.be.undefined;
 
-      expect(code).not.to.contain('undefined');
-      expect(code).not.to.contain('null');
-      expect(code).not.to.contain('NaN');
+      expect(protoCode).not.to.contain('undefined');
+      expect(protoCode).not.to.contain('null');
+      expect(protoCode).not.to.contain('NaN');
 
-      expect(code).to.contain('repeated string values = 3;');
-      expect(code).not.to.contain('message ItemValue');
+      expect(protoCode).to.contain('repeated string values = 3;');
+      expect(protoCode).not.to.contain('message ItemValue');
 
       serverInstance.addService(packageObject.fooBar.FooBar.service, {
+        anythingElse(ctx, reply) {
+          reply(null, {});
+        },
         async something(ctx, reply) {
           const validate = is(refs.find(x => x.id === 'Value'));
 
@@ -103,8 +164,9 @@ describe('Test', () => {
           console.log('CALL', ctx.request, validate.errors);
 
           reply(null, {
-            foo: 'BAR',
             id: 99,
+            foo: 'BAR',
+            values: ['OK'],
           });
         },
       });
@@ -135,19 +197,22 @@ describe('Test', () => {
           await validate(response);
 
           console.log(error, response, validate.errors);
+          // console.log(protoCode);
           done();
         });
       });
     } catch (e) {
       const matches = e.message.match(/line (\d+)/);
 
+      console.log('# Protobuf');
+
       if (matches) {
         console.log(e.message);
-        console.log(code.trim().split('\n')
+        console.log(protoCode.trim().split('\n')
           .map((x, l) => `${(matches[1] - 1) === l ? ' >' : '  '} ${`00${l + 1}`.substr(-2)} ${x}`)
           .join('\n'));
       } else {
-        console.log(code);
+        console.log(protoCode);
       }
 
       throw e;

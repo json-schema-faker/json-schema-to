@@ -3,6 +3,9 @@
   "definitions": {
     "justAString": {
       "type": "string"
+    },
+    "anEnum": {
+      "enum": ["FOO", "BAR"]
     }
   }
 }
