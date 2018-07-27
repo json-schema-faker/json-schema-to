@@ -46,13 +46,19 @@ describe('Test', () => {
         return 42;
       },
       anythingElse() {
-        return 'Hello world!';
+        return {
+          id: 1,
+          value: 'FOO',
+          values: ['baz', 'buzz'],
+        };
       },
     };
 
     const query = `query {
       anythingElse {
         id
+        value
+        values
       }
     }`;
 
@@ -75,13 +81,9 @@ describe('Test', () => {
         resolvers: {},
       });
 
-      // const gql = graphql.buildSchema(...);
       const response = await graphql.graphql(gql, query, root);
 
-      // console.log(graphqlSchema);
-      // console.log(gqlCode);
-
-      console.log('>>>', response);
+      console.log('>>>', response.data);
     } catch (e) {
       console.log('# GraphQL');
       console.log(gqlCode);
