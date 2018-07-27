@@ -29,8 +29,15 @@ const refs = [
     id: 'Empty',
   },
   {
-    id: 'someValue',
-  }
+    id: 'Value',
+    // FIXME: object causes bugs...
+    // type: 'object',
+    properties: {
+      example: {
+        type: 'number',
+      },
+    },
+  },
 ];
 
 const schema = {
@@ -59,7 +66,7 @@ describe('Test', () => {
       refs: ['external'],
       calls: [
         // FIXME: provide this through schemas too?
-        { req: 'something', resp: 'someValue' },
+        { req: 'something', resp: 'Test', input: 'Value' },
       ],
     };
 
@@ -69,6 +76,8 @@ describe('Test', () => {
     mockFs({
       'generated.proto': Buffer.from(code),
     });
+
+    const serverInstance = new grpcLibrary.Server();
 
     try {
       const protoOptions = {};
@@ -83,6 +92,38 @@ describe('Test', () => {
 
       expect(code).to.contain('repeated string values = 3;');
       expect(code).not.to.contain('message ItemValue');
+
+      serverInstance.addService(packageObject.fooBar.FooBar.service, {
+        something(ctx, reply) {
+          console.log('CALL', ctx.request);
+          reply(null, {
+            foo: 'BAR',
+            id: 99,
+          });
+        },
+      });
+
+      serverInstance.bind('0.0.0.0:50051', grpcLibrary.ServerCredentials.createInsecure());
+      serverInstance.start();
+
+      await new Promise(done => {
+        const gateway = new packageObject.fooBar.FooBar('0.0.0.0:50051', grpcLibrary.credentials.createInsecure());
+
+        const payload = {
+          value: 'OK',
+          example: 4.20,
+        };
+
+        const deadline = new Date();
+
+        deadline.setSeconds(deadline.getSeconds() + 3);
+
+        gateway.something(payload, { deadline }, (error, response) => {
+          console.log(error, response);
+          // console.log(code);
+          done();
+        });
+      });
     } catch (e) {
       const matches = e.message.match(/line (\d+)/);
 
@@ -98,6 +139,10 @@ describe('Test', () => {
       throw e;
     } finally {
       mockFs.restore();
+
+      await new Promise(done => {
+        serverInstance.tryShutdown(done);
+      });
     }
   });
 });
