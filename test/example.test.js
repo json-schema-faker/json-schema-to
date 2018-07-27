@@ -4,6 +4,7 @@ const expect = require('chai').expect;
 const grpcLibrary = require('grpc')
 const protoLoader = require('@grpc/proto-loader')
 
+const is = require('is-my-json-valid');
 const jsf = require('json-schema-faker');
 
 jsf.option({
@@ -94,8 +95,13 @@ describe('Test', () => {
       expect(code).not.to.contain('message ItemValue');
 
       serverInstance.addService(packageObject.fooBar.FooBar.service, {
-        something(ctx, reply) {
-          console.log('CALL', ctx.request);
+        async something(ctx, reply) {
+          const validate = is(refs.find(x => x.id === 'Value'));
+
+          await validate(ctx.request);
+
+          console.log('CALL', ctx.request, validate.errors);
+
           reply(null, {
             foo: 'BAR',
             id: 99,
@@ -118,9 +124,17 @@ describe('Test', () => {
 
         deadline.setSeconds(deadline.getSeconds() + 3);
 
-        gateway.something(payload, { deadline }, (error, response) => {
-          console.log(error, response);
-          // console.log(code);
+        gateway.something(payload, { deadline }, async (error, response) => {
+          const validate = is(schema, {
+            schemas: refs.reduce((prev, cur) => {
+              prev[cur.id] = cur;
+              return prev;
+            }, {}),
+          });
+
+          await validate(response);
+
+          console.log(error, response, validate.errors);
           done();
         });
       });
