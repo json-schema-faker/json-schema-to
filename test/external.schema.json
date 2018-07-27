@@ -1,0 +1,8 @@
+{
+  "id": "externalTypes",
+  "definitions": {
+    "justAString": {
+      "type": "string"
+    }
+  }
+}
