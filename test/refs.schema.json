@@ -1,0 +1,23 @@
+[
+  {
+    "id": "dataTypes",
+    "definitions": {
+      "primaryKey": {
+        "type": "integer"
+      }
+    }
+  },
+  {
+    "id": "ItemValue",
+    "$ref": "external.schema.json#/definitions/justAString"
+  },
+  {
+    "id": "Value",
+    "properties": {
+      "example": {
+        "type": "number"
+      }
+    },
+    "required": ["example"]
+  }
+]

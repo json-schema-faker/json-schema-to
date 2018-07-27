@@ -18,56 +18,8 @@ jsf.option({
 const jst = require('../lib');
 const { trim } = require('../lib/utils');
 
-const refs = [
-  {
-    id: 'dataTypes',
-    definitions: {
-      primaryKey: {
-        type: 'integer',
-      },
-    },
-  },
-  {
-    id: 'ItemValue',
-    $ref: 'external.schema.json#/definitions/justAString',
-  },
-  // {
-  //   id: 'Empty',
-  // },
-  {
-    id: 'Value',
-    // FIXME: object causes bugs...
-    // type: 'object',
-    properties: {
-      example: {
-        type: 'number',
-      },
-    },
-    // additionalProperties: false,
-    required: ['example'],
-  },
-];
-
-const schema = {
-  id: 'Test',
-  type: 'object',
-  properties: {
-    id: {
-      $ref: 'dataTypes#/definitions/primaryKey',
-    },
-    value: {
-      $ref: 'external.schema.json#/definitions/anEnum',
-    },
-    values: {
-      type: 'array',
-      items: {
-        $ref: 'ItemValue',
-      },
-    },
-  },
-  // additionalProperties: false,
-  // required: ['id', 'value', 'values'],
-};
+const refs = require('./refs.schema.json');
+const schema = require('./test.schema.json');
 
 /* global describe, it */
 

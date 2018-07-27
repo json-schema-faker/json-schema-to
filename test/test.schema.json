@@ -1,0 +1,18 @@
+{
+  "id": "Test",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "dataTypes#/definitions/primaryKey"
+    },
+    "value": {
+      "$ref": "external.schema.json#/definitions/anEnum"
+    },
+    "values": {
+      "type": "array",
+      "items": {
+        "$ref": "ItemValue"
+      }
+    }
+  }
+}
