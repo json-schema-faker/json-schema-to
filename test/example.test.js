@@ -1,10 +1,12 @@
+/* eslint-disable no-unused-expressions */
+
 const mockFs = require('mock-fs');
 const expect = require('chai').expect;
 
 const graphql = require('graphql');
 const graphqlTools = require('graphql-tools');
-const grpcLibrary = require('grpc')
-const protoLoader = require('@grpc/proto-loader')
+const grpcLibrary = require('grpc');
+const protoLoader = require('@grpc/proto-loader');
 
 const is = require('is-my-json-valid');
 const jsf = require('json-schema-faker');
@@ -67,21 +69,25 @@ const schema = {
   // required: ['id', 'value', 'values'],
 };
 
+/* global describe, it */
+
 describe('Test', () => {
   it('OK', async () => {
-    const package = {
+    const pkgInfo = {
       name: 'foo-bar',
       refs: ['external'],
       calls: [
         // FIXME: provide this through schemas too?
-        { set: 'something', resp: 'Test', input: 'Value', required: true },
+        {
+          set: 'something', resp: 'Test', input: 'Value', required: true,
+        },
         { get: 'anythingElse', resp: 'Test' },
       ],
     };
 
     const models = await jst.parse(__dirname, refs, schema);
-    const gqlCode = jst.generate(package, models, jst.graphqlDefs);
-    const protoCode = jst.generate(package, models, jst.protobufDefs);
+    const gqlCode = jst.generate(pkgInfo, models, jst.graphqlDefs);
+    const protoCode = jst.generate(pkgInfo, models, jst.protobufDefs);
 
     const root = {
       something() {
@@ -129,7 +135,6 @@ describe('Test', () => {
       console.log(e.message);
       console.log(gqlCode);
     }
-    return;
 
     mockFs({
       'generated.proto': Buffer.from(protoCode),
