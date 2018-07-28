@@ -37,9 +37,26 @@ describe('Test', () => {
       ],
     };
 
-    const models = await jst.parse(__dirname, refs, schema);
-    const gqlCode = jst.generate(pkgInfo, models, jst.graphqlDefs);
-    const protoCode = jst.generate(pkgInfo, models, jst.protobufDefs);
+    const definitions = {
+      models: {},
+      enums: [],
+    };
+
+    await jst.parse(__dirname, refs, schema, definitions);
+
+    const models = Object.keys(definitions.models)
+      .map(def => ({
+        name: def,
+        props: definitions.models[def],
+      }));
+
+    const options = {
+      models,
+      enums: definitions.enums,
+    };
+
+    const gqlCode = jst.generate(pkgInfo, options, jst.graphqlDefs);
+    const protoCode = jst.generate(pkgInfo, options, jst.protobufDefs);
 
     const root = {
       something() {
