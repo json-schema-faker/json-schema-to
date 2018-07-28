@@ -45,7 +45,9 @@ class Builder {
 
     results.forEach(_jst => {
       if (_jst instanceof Builder) {
-        const { service, external } = _jst.model;
+        const { schema, service, external } = _jst.model;
+
+        schemas[schema.id] = schema;
 
         Object.assign(defns, _jst.defns);
         Object.assign(options.deps, service.assoc);
@@ -80,8 +82,8 @@ class Builder {
     });
 
     return {
-      get(schemaId) {
-        return schemas[schemaId];
+      get $refs() {
+        return schemas;
       },
       get schema() {
         return jst.generate(resource, options, jst.graphqlDefs, defns);
@@ -119,6 +121,8 @@ class Builder {
   }
 
   get model() {
+    const { schema } = this.resource;
+
     const service = {
       model: this.modelId,
       assoc: this.definitions.deps,
@@ -141,6 +145,7 @@ class Builder {
     });
 
     return {
+      schema,
       service,
       external,
     };
