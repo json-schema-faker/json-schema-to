@@ -127,9 +127,7 @@ class Builder {
 
     const fixedRefs = await Promise.all(refs.map(x => jst.resolve(directory, refs, x)));
 
-    await Promise.all(bundle.map(cb => cb(fixedRefs)));
-
-    return bundle;
+    return Promise.all(bundle.map(cb => cb(fixedRefs)));
   }
 
   async load(directory, refs = []) {
