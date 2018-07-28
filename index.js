@@ -105,12 +105,18 @@ class Builder {
     };
   }
 
-  static async load(packageId, schemas, refs = []) {
+  static async load(directory, schemas, refs = []) {
+    if (typeof directory === 'object') {
+      refs = schemas || [];
+      schemas = directory;
+      directory = undefined;
+    }
+
     const bundle = Object.keys(schemas).reduce((prev, cur) => {
       if (schemas[cur].serviceDefinition) {
         const _jst = new Builder(schemas[cur]);
 
-        prev.push(() => _jst.load(refs));
+        prev.push(_refs => _jst.load(directory, _refs));
         refs.push(_jst.$schema);
       } else {
         refs.push(schemas[cur]);
@@ -119,15 +125,19 @@ class Builder {
       return prev;
     }, []);
 
-    await Promise.all(bundle.map(cb => cb()));
+    const fixedRefs = await Promise.all(refs.map(x => jst.resolve(directory, refs, x)));
 
-    return Builder.merge(packageId, bundle);
+    await Promise.all(bundle.map(cb => cb(fixedRefs)));
+
+    return bundle;
   }
 
-  async load(refs = []) {
-    const fixedSchema = await jst.resolve(false, refs, this.resource.schema);
+  async load(directory, refs = []) {
+    const fixedSchema = await jst.resolve(directory, refs, this.resource.schema);
 
     await jst.load(refs, fixedSchema, this._definitions);
+
+    return this;
   }
 
   async scan(directory, refs = []) {
