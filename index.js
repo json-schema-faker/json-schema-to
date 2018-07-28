@@ -3,7 +3,7 @@ const jst = require('./lib');
 class Builder {
   constructor(id, pkg) {
     this.modelId = id;
-    this.resource = pkg;
+    this.resource = { ...pkg };
 
     this.definitions = {
       models: {},
