@@ -26,7 +26,7 @@ const schema = require('./test.schema.json');
 describe('Test', () => {
   it('OK', async () => {
     const pkgInfo = {
-      name: 'foo-bar',
+      pkg: 'foo-bar',
       refs: ['external'],
       calls: [
         // FIXME: provide this through schemas too?
@@ -40,6 +40,7 @@ describe('Test', () => {
     const definitions = {
       models: {},
       enums: [],
+      deps: {},
     };
 
     await jst.parse(__dirname, refs, schema, definitions);
@@ -52,6 +53,7 @@ describe('Test', () => {
 
     const options = {
       models,
+      deps: {},
       enums: definitions.enums,
     };
 
