@@ -1,7 +1,5 @@
 /* eslint-disable no-unused-expressions */
 
-const expect = require('chai').expect;
-
 const _ = require('./utils');
 const jst = require('../lib');
 
@@ -84,15 +82,6 @@ describe('Test', () => {
       const protoOptions = {};
       const packageDefinition = _.loadSync('generated.proto', protoOptions);
       const packageObject = _.loadPackageDefinition(packageDefinition);
-
-      expect(packageObject.fooBar.FooBar).not.to.be.undefined;
-
-      expect(protoCode).not.to.contain('undefined');
-      expect(protoCode).not.to.contain('null');
-      expect(protoCode).not.to.contain('NaN');
-
-      expect(protoCode).to.contain('repeated string values = 3;');
-      expect(protoCode).not.to.contain('message ItemValue');
 
       serverInstance.addService(packageObject.fooBar.FooBar.service, {
         anythingElse(ctx, reply) {
