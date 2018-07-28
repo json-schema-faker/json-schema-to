@@ -14,6 +14,7 @@ const definitions = {
   models: {},
   enums: [],
   deps: {},
+  refs: {},
 };
 
 module.exports = {
