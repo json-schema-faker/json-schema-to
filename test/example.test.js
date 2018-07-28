@@ -4,7 +4,6 @@ const expect = require('chai').expect;
 
 const _ = require('./utils');
 const jst = require('../lib');
-const { trim } = require('../lib/utils');
 
 const refs = require('./refs.schema.json');
 const schema = require('./test.schema.json');
@@ -19,17 +18,8 @@ describe('Test', () => {
 
     await jst.parse(__dirname, refs, schema, definitions);
 
-    const models = Object.keys(definitions.models)
-      .map(def => ({
-        name: def,
-        props: definitions.models[def],
-      }));
-
-    const options = {
-      models,
-      deps: {},
-      enums: definitions.enums,
-    };
+    const models = _.getModels(definitions);
+    const options = _.getOptions(models, definitions);
 
     const gqlCode = jst.generate(pkgInfo, options, jst.graphqlDefs);
     const protoCode = jst.generate(pkgInfo, options, jst.protobufDefs);
@@ -56,7 +46,7 @@ describe('Test', () => {
     }`;
 
     try {
-      const graphqlSchema = trim(`
+      const graphqlSchema = _.trim(`
         type Query {
           dummy: [String]
         }
@@ -71,7 +61,6 @@ describe('Test', () => {
 
       const gql = _.makeExecutableSchema({
         typeDefs: [graphqlSchema, gqlCode],
-        resolvers: {},
       });
 
       const response = await _.graphql(gql, query, root);
