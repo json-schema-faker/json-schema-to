@@ -19,6 +19,7 @@ class Builder {
       models: {},
       enums: [],
       deps: {},
+      refs: {},
     };
 
     this.resource.defns = this.resource.schema.definitions || {};
@@ -45,10 +46,9 @@ class Builder {
 
     results.forEach(_jst => {
       if (_jst instanceof Builder) {
-        const { schema, service, external } = _jst.model;
+        const { service, external } = _jst.model;
 
-        schemas[schema.id] = schema;
-
+        Object.assign(schemas, _jst.$refs);
         Object.assign(defns, _jst.defns);
         Object.assign(options.deps, service.assoc);
 
@@ -149,6 +149,10 @@ class Builder {
       service,
       external,
     };
+  }
+
+  get $refs() {
+    return this.definitions.refs;
   }
 
   get defns() {
