@@ -96,7 +96,7 @@ class Builder {
       get $refs() {
         return schemas;
       },
-      get schema() {
+      get graphql() {
         return jst.generate(resource, options, jst.graphqlDefs, defns);
       },
       get protobuf() {
@@ -209,7 +209,7 @@ class Builder {
     return this._definitions.enums;
   }
 
-  get schema() {
+  get graphql() {
     return jst.generate(this.resource, this.options, jst.graphqlDefs, this.defns);
   }
 
