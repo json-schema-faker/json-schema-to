@@ -1,20 +1,8 @@
 /* eslint-disable no-unused-expressions */
 
-const mockFs = require('mock-fs');
 const expect = require('chai').expect;
 
-const graphql = require('graphql');
-const graphqlTools = require('graphql-tools');
-const grpcLibrary = require('grpc');
-const protoLoader = require('@grpc/proto-loader');
-
-const is = require('is-my-json-valid');
-const jsf = require('json-schema-faker');
-
-jsf.option({
-  alwaysFakeOptionals: true,
-});
-
+const _ = require('./utils');
 const jst = require('../lib');
 const { trim } = require('../lib/utils');
 
@@ -25,23 +13,9 @@ const schema = require('./test.schema.json');
 
 describe('Test', () => {
   it('OK', async () => {
-    const pkgInfo = {
-      pkg: 'foo-bar',
-      refs: ['external'],
-      calls: [
-        // FIXME: provide this through schemas too?
-        {
-          set: 'something', resp: 'Test', input: 'Value', required: true,
-        },
-        { get: 'anythingElse', resp: 'Test' },
-      ],
-    };
-
-    const definitions = {
-      models: {},
-      enums: [],
-      deps: {},
-    };
+    const {
+      pkgInfo, definitions,
+    } = require('./fixtures');
 
     await jst.parse(__dirname, refs, schema, definitions);
 
@@ -95,12 +69,12 @@ describe('Test', () => {
         }
       `);
 
-      const gql = graphqlTools.makeExecutableSchema({
+      const gql = _.makeExecutableSchema({
         typeDefs: [graphqlSchema, gqlCode],
         resolvers: {},
       });
 
-      const response = await graphql.graphql(gql, query, root);
+      const response = await _.graphql(gql, query, root);
 
       console.log('>>>', response.data);
     } catch (e) {
@@ -110,17 +84,17 @@ describe('Test', () => {
       throw e;
     }
 
-    mockFs({
+    _.mockFs({
       'generated.proto': Buffer.from(protoCode),
       'external.proto': Buffer.from('message Empty {}'),
     });
 
-    const serverInstance = new grpcLibrary.Server();
+    const serverInstance = new _.Server();
 
     try {
       const protoOptions = {};
-      const packageDefinition = protoLoader.loadSync('generated.proto', protoOptions);
-      const packageObject = grpcLibrary.loadPackageDefinition(packageDefinition);
+      const packageDefinition = _.loadSync('generated.proto', protoOptions);
+      const packageObject = _.loadPackageDefinition(packageDefinition);
 
       expect(packageObject.fooBar.FooBar).not.to.be.undefined;
 
@@ -136,7 +110,7 @@ describe('Test', () => {
           reply(null, {});
         },
         async something(ctx, reply) {
-          const validate = is(refs.find(x => x.id === 'Value'));
+          const validate = _.is(refs.find(x => x.id === 'Value'));
 
           await validate(ctx.request);
 
@@ -150,11 +124,11 @@ describe('Test', () => {
         },
       });
 
-      serverInstance.bind('0.0.0.0:50051', grpcLibrary.ServerCredentials.createInsecure());
+      serverInstance.bind('0.0.0.0:50051', _.ServerCredentials.createInsecure());
       serverInstance.start();
 
       await new Promise(done => {
-        const gateway = new packageObject.fooBar.FooBar('0.0.0.0:50051', grpcLibrary.credentials.createInsecure());
+        const gateway = new packageObject.fooBar.FooBar('0.0.0.0:50051', _.credentials.createInsecure());
 
         const payload = {
           value: 'OK',
@@ -166,7 +140,7 @@ describe('Test', () => {
         deadline.setSeconds(deadline.getSeconds() + 3);
 
         gateway.something(payload, { deadline }, async (error, response) => {
-          const validate = is(schema, {
+          const validate = _.is(schema, {
             schemas: refs.reduce((prev, cur) => {
               prev[cur.id] = cur;
               return prev;
@@ -195,7 +169,7 @@ describe('Test', () => {
 
       throw e;
     } finally {
-      mockFs.restore();
+      _.mockFs.restore();
 
       await new Promise(done => {
         serverInstance.tryShutdown(done);
