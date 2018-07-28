@@ -1,9 +1,9 @@
 const jst = require('./lib');
 
 class Builder {
-  constructor(id, pkg) {
-    this.modelId = id;
-    this.resource = { ...pkg };
+  constructor({ serviceDefinition, ...schema }) {
+    this.modelId = schema.id;
+    this.resource = { ...serviceDefinition, schema };
 
     this.definitions = {
       models: {},
@@ -11,7 +11,7 @@ class Builder {
       deps: {},
     };
 
-    this.resource.pkg = this.resource.pkg || id;
+    this.resource.pkg = this.resource.pkg || schema.id;
     this.resource.refs = this.resource.refs || [];
   }
 
@@ -28,6 +28,7 @@ class Builder {
       deps: {},
     };
 
+    const schemas = {};
     const defns = {};
     const seen = [];
 
@@ -68,6 +69,9 @@ class Builder {
     });
 
     return {
+      get(schemaId) {
+        return schemas[schemaId];
+      },
       get schema() {
         return jst.generate(resource, options, jst.graphqlDefs, defns);
       },
