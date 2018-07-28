@@ -21,6 +21,7 @@ class Builder {
       deps: {},
     };
 
+    this.resource.defns = this.resource.schema.definitions || {};
     this.resource.pkg = this.resource.pkg || schema.id;
     this.resource.refs = this.resource.refs || [];
   }
@@ -96,11 +97,7 @@ class Builder {
       throw new Error(`Invalid references, given ${inspect(references)}`);
     }
 
-    this.resource.defns = this.resource.defns || {};
-
     await jst.parse(directory, references, this.resource.schema, this.definitions);
-
-    Object.assign(this.resource.defns, this.resource.schema.definitions);
 
     return this;
   }
