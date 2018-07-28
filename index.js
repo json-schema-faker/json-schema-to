@@ -28,12 +28,14 @@ class Builder {
       deps: {},
     };
 
+    const defns = {};
     const seen = [];
 
     results.forEach(_jst => {
       if (_jst instanceof Builder) {
         const { service, external } = _jst.model;
 
+        Object.assign(defns, _jst.defns);
         Object.assign(options.deps, service.assoc);
 
         resource.calls.push(...service.resource.calls);
@@ -67,16 +69,20 @@ class Builder {
 
     return {
       get schema() {
-        return jst.generate(resource, options, jst.graphqlDefs);
+        return jst.generate(resource, options, jst.graphqlDefs, defns);
       },
       get protobuf() {
-        return jst.generate(resource, options, jst.protobufDefs);
+        return jst.generate(resource, options, jst.protobufDefs, defns);
       },
     };
   }
 
   async scan(cwd, refs, schema) {
+    this.resource.defns = this.resource.defns || {};
+
     await jst.parse(cwd, refs, schema, this.definitions);
+
+    Object.assign(this.resource.defns, schema.definitions);
 
     return this;
   }
@@ -125,16 +131,20 @@ class Builder {
     };
   }
 
+  get defns() {
+    return this.resource.defns || {};
+  }
+
   get enums() {
     return this.definitions.enums;
   }
 
   get schema() {
-    return jst.generate(this.resource, this.options, jst.graphqlDefs);
+    return jst.generate(this.resource, this.options, jst.graphqlDefs, this.defns);
   }
 
   get protobuf() {
-    return jst.generate(this.resource, this.options, jst.protobufDefs);
+    return jst.generate(this.resource, this.options, jst.protobufDefs, this.defns);
   }
 }
 
