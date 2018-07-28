@@ -8,6 +8,7 @@ class Builder {
     this.definitions = {
       models: {},
       enums: [],
+      deps: {},
     };
 
     this.resource.pkg = this.resource.pkg || id;
@@ -24,6 +25,7 @@ class Builder {
     const options = {
       models: [],
       enums: [],
+      deps: {},
     };
 
     const seen = [];
@@ -31,6 +33,8 @@ class Builder {
     results.forEach(_jst => {
       if (_jst instanceof Builder) {
         const { service, external } = _jst.model;
+
+        Object.assign(options.deps, service.assoc);
 
         resource.calls.push(...service.resource.calls);
 
@@ -81,6 +85,7 @@ class Builder {
     return {
       models: this.models,
       enums: this.definitions.enums,
+      deps: this.definitions.deps,
     };
   }
 
@@ -95,6 +100,7 @@ class Builder {
   get model() {
     const service = {
       model: this.modelId,
+      assoc: this.definitions.deps,
       schema: this.definitions.models[this.modelId],
       resource: {
         refs: this.resource.refs,
