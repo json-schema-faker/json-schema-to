@@ -105,12 +105,33 @@ class Builder {
     };
   }
 
-  async scan(directory, references = []) {
-    if (!(references && Array.isArray(references))) {
-      throw new Error(`Invalid references, given ${inspect(references)}`);
-    }
+  static async load(packageId, schemas, refs = []) {
+    const bundle = Object.keys(schemas).reduce((prev, cur) => {
+      if (schemas[cur].serviceDefinition) {
+        const _jst = new Builder(schemas[cur]);
 
-    await jst.parse(directory, references, this.resource.schema, this._definitions);
+        prev.push(() => _jst.load(refs));
+        refs.push(_jst.$schema);
+      } else {
+        refs.push(schemas[cur]);
+      }
+
+      return prev;
+    }, []);
+
+    await Promise.all(bundle.map(cb => cb()));
+
+    return Builder.merge(packageId, bundle);
+  }
+
+  async load(refs = []) {
+    const fixedSchema = await jst.resolve(false, refs, this.resource.schema);
+
+    await jst.load(refs, fixedSchema, this._definitions);
+  }
+
+  async scan(directory, refs = []) {
+    await jst.parse(directory, refs, this.resource.schema, this._definitions);
 
     return this;
   }
@@ -160,6 +181,10 @@ class Builder {
       service,
       external,
     };
+  }
+
+  get $schema() {
+    return this.resource.schema;
   }
 
   get $refs() {
