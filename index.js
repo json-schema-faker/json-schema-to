@@ -91,12 +91,16 @@ class Builder {
     };
   }
 
-  async scan(cwd, refs, schema) {
+  async scan(directory, references = []) {
+    if (!(references && Array.isArray(references))) {
+      throw new Error(`Invalid references, given ${inspect(references)}`);
+    }
+
     this.resource.defns = this.resource.defns || {};
 
-    await jst.parse(cwd, refs, schema, this.definitions);
+    await jst.parse(directory, references, this.resource.schema, this.definitions);
 
-    Object.assign(this.resource.defns, schema.definitions);
+    Object.assign(this.resource.defns, this.resource.schema.definitions);
 
     return this;
   }
