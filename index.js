@@ -1,9 +1,19 @@
+const { inspect } = require('util');
+
 const jst = require('./lib');
 
 class Builder {
   constructor({ serviceDefinition, ...schema }) {
-    this.modelId = schema.id;
+    if (!serviceDefinition) {
+      throw new Error(`Missing service definition, given ${inspect(serviceDefinition)}`);
+    }
+
+    if (!(schema && schema.id)) {
+      throw new Error(`Missing schema identifier, given ${inspect(schema)}`);
+    }
+
     this.resource = { ...serviceDefinition, schema };
+    this.modelId = schema.id;
 
     this.definitions = {
       models: {},
