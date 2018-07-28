@@ -15,16 +15,27 @@ class Builder {
     this.resource = { ...serviceDefinition, schema };
     this.modelId = schema.id;
 
-    this.definitions = {
-      models: {},
-      enums: [],
-      deps: {},
-      refs: {},
-    };
+    const _defns = { ...this.resource.schema.definitions };
 
-    this.resource.defns = this.resource.schema.definitions || {};
+    Object.keys(_defns).forEach(def => {
+      const { items, $ref, id } = _defns[def] || {};
+
+      _defns[def] = (items && (items.$ref || items.id)) || $ref || id;
+    });
+
+    this.resource.defns = _defns;
     this.resource.pkg = this.resource.pkg || schema.id;
     this.resource.refs = this.resource.refs || [];
+
+    Object.defineProperty(this, '_definitions', {
+      enumerable: false,
+      value: {
+        models: {},
+        enums: [],
+        deps: {},
+        refs: {},
+      },
+    });
   }
 
   static merge(id, results) {
@@ -99,7 +110,7 @@ class Builder {
       throw new Error(`Invalid references, given ${inspect(references)}`);
     }
 
-    await jst.parse(directory, references, this.resource.schema, this.definitions);
+    await jst.parse(directory, references, this.resource.schema, this._definitions);
 
     return this;
   }
@@ -107,16 +118,16 @@ class Builder {
   get options() {
     return {
       models: this.models,
-      enums: this.definitions.enums,
-      deps: this.definitions.deps,
+      enums: this._definitions.enums,
+      deps: this._definitions.deps,
     };
   }
 
   get models() {
-    return Object.keys(this.definitions.models)
+    return Object.keys(this._definitions.models)
       .map(def => ({
         name: def,
-        props: this.definitions.models[def],
+        props: this._definitions.models[def],
       }));
   }
 
@@ -125,8 +136,8 @@ class Builder {
 
     const service = {
       model: this.modelId,
-      assoc: this.definitions.deps,
-      schema: this.definitions.models[this.modelId],
+      assoc: this._definitions.deps,
+      schema: this._definitions.models[this.modelId],
       resource: {
         refs: this.resource.refs,
         calls: this.resource.calls,
@@ -135,11 +146,11 @@ class Builder {
 
     const external = [];
 
-    Object.keys(this.definitions.models).forEach(refId => {
+    Object.keys(this._definitions.models).forEach(refId => {
       if (refId !== this.modelId) {
         external.push({
           model: refId,
-          schema: this.definitions.models[refId],
+          schema: this._definitions.models[refId],
         });
       }
     });
@@ -152,7 +163,7 @@ class Builder {
   }
 
   get $refs() {
-    return this.definitions.refs;
+    return this._definitions.refs;
   }
 
   get defns() {
@@ -160,7 +171,7 @@ class Builder {
   }
 
   get enums() {
-    return this.definitions.enums;
+    return this._definitions.enums;
   }
 
   get schema() {
