@@ -1,7 +1,7 @@
 {
   "name": "json-schema-to",
   "version": "0.0.0",
-  "description": "Generate third-party definitions directly from your JSON-Schema.",
+  "description": "JSON-Schema To ≤GraphQL|Protobuf|Code≥.™",
   "main": "index.js",
   "scripts": {
     "watch": "npm test -- -w",
