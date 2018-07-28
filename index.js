@@ -26,19 +26,13 @@ class Builder {
       enums: [],
     };
 
-    const known = [];
     const seen = [];
 
     results.forEach(_jst => {
       if (_jst instanceof Builder) {
         const { service, external } = _jst.model;
 
-        service.resource.calls.forEach(call => {
-          if (!known.includes(call.get || call.set)) {
-            resource.calls.push(call.get || call.set);
-            known.push(call);
-          }
-        });
+        resource.calls.push(...service.resource.calls);
 
         service.resource.refs.forEach(ref => {
           if (!resource.refs.includes(ref)) {
