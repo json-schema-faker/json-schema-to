@@ -75,12 +75,12 @@ class Builder {
         Array.prototype.push.apply(resource.calls, service.resource.calls);
 
         service.resource.refs.forEach(ref => {
-          if (!resource.refs.includes(ref)) {
+          if (resource.refs.indexOf(ref) === -1) {
             resource.refs.push(ref);
           }
         });
 
-        if (!seen.includes(service.model)) {
+        if (seen.indexOf(service.model) === -1) {
           seen.push(service.model);
 
           options.models.push({
@@ -90,7 +90,7 @@ class Builder {
         }
 
         external.forEach(ref => {
-          if (!seen.includes(ref.model)) {
+          if (seen.indexOf(ref.model) === -1) {
             seen.push(ref.model);
             options.models.push({
               name: ref.model,
