@@ -1,6 +1,6 @@
 {
   "name": "json-schema-to",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "JSON-Schema To ≤GraphQL|Protobuf|Code≥.™",
   "main": "index.js",
   "scripts": {
