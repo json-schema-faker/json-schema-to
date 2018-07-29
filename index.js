@@ -20,7 +20,6 @@ class Builder {
       throw new Error(`Missing schema identifier, given ${_util.inspect(schema)}`);
     }
 
-    this.resource = Object.assign(serviceDefinition, { schema });
     this.modelId = schema.id;
 
     const _defns = Object.assign({}, schema.definitions);
@@ -32,9 +31,15 @@ class Builder {
       _defns[def] = (items && (items.$ref || items.id)) || ref.$ref || ref.id;
     });
 
-    this.resource.defns = _defns;
-    this.resource.pkg = this.resource.pkg || schema.id;
-    this.resource.refs = this.resource.refs || [];
+    Object.defineProperty(this, '_resource', {
+      enumerable: false,
+      value: Object.assign(serviceDefinition, {
+        schema,
+        defns: _defns,
+        pkg: resource.pkg || schema.id,
+        refs: resource.refs || [],
+      }),
+    });
 
     Object.defineProperty(this, '_definitions', {
       enumerable: false,
@@ -45,6 +50,8 @@ class Builder {
         refs: {},
       },
     });
+
+    console.log(this);
   }
 
   static merge(id, results) {
@@ -142,13 +149,13 @@ class Builder {
   }
 
   load(directory, refs) {
-    return jst.resolve(directory, refs || [], this.resource.schema)
+    return jst.resolve(directory, refs || [], this._resource.schema)
       .then(fixedSchema => jst.load(refs, fixedSchema, this._definitions))
       .then(() => this);
   }
 
   scan(directory, refs) {
-    return jst.parse(directory, refs || [], this.resource.schema, this._definitions)
+    return jst.parse(directory, refs || [], this._resource.schema, this._definitions)
       .then(() => this);
   }
 
@@ -169,15 +176,15 @@ class Builder {
   }
 
   get model() {
-    const schema = this.resource.schema;
+    const schema = this._resource.schema;
 
     const service = {
       model: this.modelId,
       assoc: this._definitions.deps,
       schema: this._definitions.models[this.modelId],
       resource: {
-        refs: this.resource.refs,
-        calls: this.resource.calls,
+        refs: this._resource.refs,
+        calls: this._resource.calls,
       },
     };
 
@@ -200,7 +207,7 @@ class Builder {
   }
 
   get $schema() {
-    return this.resource.schema;
+    return this._resource.schema;
   }
 
   get $refs() {
@@ -208,7 +215,7 @@ class Builder {
   }
 
   get defns() {
-    return this.resource.defns || {};
+    return this._resource.defns || {};
   }
 
   get enums() {
@@ -216,11 +223,11 @@ class Builder {
   }
 
   get graphql() {
-    return jst.generate(this.resource, this.options, jst.graphqlDefs, this.defns);
+    return jst.generate(this._resource, this.options, jst.graphqlDefs, this.defns);
   }
 
   get protobuf() {
-    return jst.generate(this.resource, this.options, jst.protobufDefs, this.defns);
+    return jst.generate(this._resource, this.options, jst.protobufDefs, this.defns);
   }
 }
 
