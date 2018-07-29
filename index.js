@@ -20,10 +20,10 @@ class Builder {
       throw new Error(`Missing schema identifier, given ${_util.inspect(schema)}`);
     }
 
-    this.resource = schema;
+    this.resource = Object.assign(serviceDefinition, { schema });
     this.modelId = schema.id;
 
-    const _defns = Object.assign({}, this.resource.schema.definitions);
+    const _defns = Object.assign({}, schema.definitions);
 
     Object.keys(_defns).forEach(def => {
       const ref = _defns[def] || {};
@@ -66,30 +66,30 @@ class Builder {
 
     results.forEach(_jst => {
       if (_jst instanceof Builder) {
-        const { service, external } = _jst.model;
+        const modelInfo = _jst.model;
 
         Object.assign(schemas, _jst.$refs);
         Object.assign(defns, _jst.defns);
-        Object.assign(options.deps, service.assoc);
+        Object.assign(options.deps, modelInfo.service.assoc);
 
-        Array.prototype.push.apply(resource.calls, service.resource.calls);
+        Array.prototype.push.apply(resource.calls, modelInfo.service.resource.calls);
 
-        service.resource.refs.forEach(ref => {
+        modelInfo.service.resource.refs.forEach(ref => {
           if (resource.refs.indexOf(ref) === -1) {
             resource.refs.push(ref);
           }
         });
 
-        if (seen.indexOf(service.model) === -1) {
-          seen.push(service.model);
+        if (seen.indexOf(modelInfo.service.model) === -1) {
+          seen.push(modelInfo.service.model);
 
           options.models.push({
-            name: service.model,
-            props: service.schema,
+            name: modelInfo.service.model,
+            props: modelInfo.service.schema,
           });
         }
 
-        external.forEach(ref => {
+        modelInfo.external.forEach(ref => {
           if (seen.indexOf(ref.model) === -1) {
             seen.push(ref.model);
             options.models.push({
@@ -141,14 +141,14 @@ class Builder {
       .then(fixedRefs => Promise.all(bundle.map(cb => cb(fixedRefs))));
   }
 
-  load(directory, refs = []) {
-    return jst.resolve(directory, refs, this.resource.schema)
+  load(directory, refs) {
+    return jst.resolve(directory, refs || [], this.resource.schema)
       .then(fixedSchema => jst.load(refs, fixedSchema, this._definitions))
       .then(() => this);
   }
 
-  scan(directory, refs = []) {
-    return jst.parse(directory, refs, this.resource.schema, this._definitions)
+  scan(directory, refs) {
+    return jst.parse(directory, refs || [], this.resource.schema, this._definitions)
       .then(() => this);
   }
 
@@ -169,7 +169,7 @@ class Builder {
   }
 
   get model() {
-    const { schema } = this.resource;
+    const schema = this.resource.schema;
 
     const service = {
       model: this.modelId,
