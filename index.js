@@ -1,26 +1,35 @@
-const { inspect } = require('util');
+'use strict';
+
+const _util = require('util');
 
 const jst = require('./lib');
 
 class Builder {
-  constructor({ serviceDefinition, ...schema }) {
+  constructor(resource) {
+    const schema = Object.assign({}, resource);
+
+    const serviceDefinition = schema.serviceDefinition;
+
+    delete schema.serviceDefinition;
+
     if (!serviceDefinition) {
-      throw new Error(`Missing service definition, given ${inspect(serviceDefinition)}`);
+      throw new Error(`Missing service definition, given ${_util.inspect(serviceDefinition)}`);
     }
 
     if (!(schema && schema.id)) {
-      throw new Error(`Missing schema identifier, given ${inspect(schema)}`);
+      throw new Error(`Missing schema identifier, given ${_util.inspect(schema)}`);
     }
 
-    this.resource = { ...serviceDefinition, schema };
+    this.resource = schema;
     this.modelId = schema.id;
 
-    const _defns = { ...this.resource.schema.definitions };
+    const _defns = Object.assign({}, this.resource.schema.definitions);
 
     Object.keys(_defns).forEach(def => {
-      const { items, $ref, id } = _defns[def] || {};
+      const ref = _defns[def] || {};
+      const items = ref.items;
 
-      _defns[def] = (items && (items.$ref || items.id)) || $ref || id;
+      _defns[def] = (items && (items.$ref || items.id)) || ref.$ref || ref.id;
     });
 
     this.resource.defns = _defns;
@@ -63,7 +72,7 @@ class Builder {
         Object.assign(defns, _jst.defns);
         Object.assign(options.deps, service.assoc);
 
-        resource.calls.push(...service.resource.calls);
+        Array.prototype.push.apply(resource.calls, service.resource.calls);
 
         service.resource.refs.forEach(ref => {
           if (!resource.refs.includes(ref)) {
@@ -105,7 +114,9 @@ class Builder {
     };
   }
 
-  static async load(directory, schemas, refs = []) {
+  static load(directory, schemas, refs) {
+    refs = refs || [];
+
     if (typeof directory === 'object') {
       refs = schemas || [];
       schemas = directory;
@@ -125,23 +136,20 @@ class Builder {
       return prev;
     }, []);
 
-    const fixedRefs = await Promise.all(refs.map(x => jst.resolve(directory, refs, x)));
-
-    return Promise.all(bundle.map(cb => cb(fixedRefs)));
+    return Promise
+      .all(refs.map(x => jst.resolve(directory, refs, x)))
+      .then(fixedRefs => Promise.all(bundle.map(cb => cb(fixedRefs))));
   }
 
-  async load(directory, refs = []) {
-    const fixedSchema = await jst.resolve(directory, refs, this.resource.schema);
-
-    await jst.load(refs, fixedSchema, this._definitions);
-
-    return this;
+  load(directory, refs = []) {
+    return jst.resolve(directory, refs, this.resource.schema)
+      .then(fixedSchema => jst.load(refs, fixedSchema, this._definitions))
+      .then(() => this);
   }
 
-  async scan(directory, refs = []) {
-    await jst.parse(directory, refs, this.resource.schema, this._definitions);
-
-    return this;
+  scan(directory, refs = []) {
+    return jst.parse(directory, refs, this.resource.schema, this._definitions)
+      .then(() => this);
   }
 
   get options() {

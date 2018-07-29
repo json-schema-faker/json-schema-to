@@ -1,18 +1,16 @@
 const mockFs = require('mock-fs');
 
-const { graphql } = require('graphql');
-const { makeExecutableSchema } = require('graphql-tools');
+const gql = require('graphql');
+const gqltools = require('graphql-tools');
 
-const {
-  Server, loadPackageDefinition, ServerCredentials, credentials,
-} = require('grpc');
+const grpc = require('grpc');
 
-const { loadSync } = require('@grpc/proto-loader');
+const grpcloader = require('@grpc/proto-loader');
 
 const is = require('is-my-json-valid');
 const jsf = require('json-schema-faker');
 
-const { trim } = require('../lib/utils');
+const utils = require('../lib/utils');
 
 function getModels(definitions) {
   return Object.keys(definitions.models)
@@ -31,17 +29,17 @@ function getOptions(models, definitions) {
 }
 
 module.exports = {
-  makeExecutableSchema,
-  graphql,
+  makeExecutableSchema: gqltools.makeExecutableSchema,
+  graphql: gql.graphql,
   mockFs,
-  Server,
-  loadSync,
-  loadPackageDefinition,
-  ServerCredentials,
-  credentials,
+  Server: grpc.Server,
+  loadSync: grpcloader.loadSync,
+  loadPackageDefinition: grpc.loadPackageDefinition,
+  ServerCredentials: grpc.ServerCredentials,
+  credentials: grpc.credentials,
   jsf,
   is,
-  trim,
+  trim: utils.trim,
   getModels,
   getOptions,
 };
