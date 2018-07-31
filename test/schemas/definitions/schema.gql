@@ -1,0 +1,6 @@
+extend type Query {
+  readValue: To
+}
+extend type Mutation {
+  updateValue: [Target]
+}

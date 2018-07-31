@@ -1,0 +1,24 @@
+{
+  "id": "Model",
+  "definitions": {
+    "FromId": {
+      "id": "To"
+    },
+    "FromRef": {
+      "$ref": "Target"
+    }
+  },
+  "serviceDefinition": {
+    "calls": [
+      {
+        "get": "readValue",
+        "resp": "FromId"
+      },
+      {
+        "set": "updateValue",
+        "resp": "FromRef",
+        "repeated": true
+      }
+    ]
+  }
+}

@@ -1,61 +1,65 @@
 'use strict';
 
+const fs = require('fs');
+const ls = require('glob').sync;
 const expect = require('chai').expect;
 
-const utils = require('../lib/utils');
 const Service = require('../lib/service');
 
-/* global beforeEach, describe, it */
+/* global describe, it */
 
-describe('Service', () => {
-  let service;
+describe.only('Service', () => {
+  describe('static methods', () => {
+    describe('constructor', () => {
+      it('should fail without arguments', () => {
+        expect(() => new Service()).to.throw('Invalid service definition, given undefined');
+      });
 
-  beforeEach(() => {
-    service = new Service({
-      serviceDefinition: {
-        calls: [
-          { get: 'value', resp: 'Test' },
-        ],
-      },
-      id: 'Test',
-      definitions: {
-        SomeType: {
-          $ref: 'Example',
-        },
-        SomeExample: {
-          id: 'OSOM',
-        },
-      },
-      properties: {
-        id: {
-          type: 'integer',
-        },
-      },
+      it('should fail on invalid definitions', () => {
+        expect(() => new Service({ serviceDefinition: true })).to.throw('Invalid service definition, given true');
+        expect(() => new Service({ serviceDefinition: [] })).to.throw('Invalid service definition, given []');
+      });
+
+      it('should fail on invalid schema definitions', () => {
+        expect(() => new Service({ serviceDefinition: {} })).to.throw('Invalid schema identifier, given {}');
+        expect(() => new Service({ serviceDefinition: {}, schema: NaN })).to.throw('Invalid schema identifier, given { schema: NaN }');
+        expect(() => new Service({ serviceDefinition: {}, schema: { id: -1 } })).to.throw('Invalid schema identifier, given { schema: { id: -1 } }');
+      });
     });
   });
 
-  it('should generate valid graphql', () => {
-    expect(service.graphql.trim()).to.eql(utils.trim(`
-      extend type Query {
-        value: Test
-      }
-    `));
-  });
+  describe('instance methods', () => {});
 
-  it('should generate valid protobuf', () => {
-    expect(service.protobuf.trim()).to.eql(utils.trim(`
-      syntax = "proto3";
-      package test;
-      service Test {
-        rpc value(Empty) returns(Test) {}
-      }
-      message Empty {}
-      message SomeType {
-        repeated Example data = 1;
-      }
-      message SomeExample {
-        repeated OSOM data = 1;
-      }
-    `));
+  describe('schema validation', () => {
+    const schemasDir = `${__dirname}/schemas`;
+
+    function readFile(filePath) {
+      return fs.readFileSync(filePath).toString();
+    }
+
+    function readJSON(filePath) {
+      return JSON.parse(readFile(filePath));
+    }
+
+    ls('**/*.json', { cwd: schemasDir })
+      .forEach(schemaFile => {
+        const schemaId = schemaFile.replace('.json', '');
+
+        it(schemaFile, () => {
+          const data = readJSON(`${schemasDir}/${schemaFile}`);
+          const service = new Service(data);
+
+          const gqlFile = `${schemasDir}/${schemaId}.gql`;
+          const protoFile = `${schemasDir}/${schemaId}.proto`;
+
+          if (data.debug) {
+            console.log(service.graphql);
+            console.log(service.protobuf);
+          }
+
+          expect(service.graphql.trim()).to.eql(readFile(gqlFile).trim());
+          expect(service.protobuf.trim()).to.eql(readFile(protoFile).trim());
+        });
+      });
   });
 });

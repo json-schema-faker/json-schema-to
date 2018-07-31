@@ -1,0 +1,12 @@
+syntax = "proto3";
+package model;
+service Model {
+  rpc readValue(Noop) returns(FromId) {}
+  rpc updateValue(Noop) returns(FromRef) {}
+}
+message FromId {
+  To data = 1;
+}
+message FromRef {
+  repeated Target data = 1;
+}
