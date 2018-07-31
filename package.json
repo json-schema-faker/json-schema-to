@@ -6,12 +6,9 @@
   "scripts": {
     "watch": "npm test -- -w",
     "test": "npm run test:unit --",
-    "test:ci": "npm run coverage:unit && npm run report:lcov && npm run report:upload --",
+    "test:ci": "npm run coverage && npm run report:upload --",
     "test:unit": "NODE_ENV=test _mocha --watch-extensions gql,json,proto --exit --recursive -bR spec 'test/**/*.test.js'",
-    "coverage": "istanbul cover --root lib -x '**/fixtures/**' -x '**/fixtures.js' -x '**/*.test.js' -x 'test/*.js'",
-    "coverage:unit": "npm run coverage -- npm run test:unit",
-    "report": "nyc report -r html",
-    "report:lcov": "nyc report -r text-lcov > coverage/lcov.info",
+    "coverage": "NODE_ENV=test istanbul cover --root lib -- _mocha --exit --recursive -bR spec 'test/**/*.test.js'",
     "report:upload": "codecov --file=coverage/lcov.info -e TRAVIS_NODE_VERSION"
   },
   "keywords": [],
