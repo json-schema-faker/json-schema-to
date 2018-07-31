@@ -8,7 +8,7 @@
     "test": "npm run test:unit --",
     "test:ci": "npm run coverage:unit && npm run report:lcov && npm run report:upload --",
     "test:unit": "NODE_ENV=test _mocha --watch-extensions gql,json,proto --exit --recursive -bR spec 'test/**/*.test.js'",
-    "coverage": "nyc -x '**/fixtures/**' -x '**/fixtures.js' -x '**/*.test.js'",
+    "coverage": "nyc -x '**/fixtures/**' -x '**/fixtures.js' -x '**/*.test.js' -x 'test/*.js'",
     "coverage:unit": "npm run coverage -- npm run test:unit",
     "report": "nyc report -r html",
     "report:lcov": "nyc report -r text-lcov > coverage/lcov.info",
