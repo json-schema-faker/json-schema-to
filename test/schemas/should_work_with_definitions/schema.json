@@ -2,10 +2,26 @@
   "id": "Model",
   "definitions": {
     "FromId": {
-      "id": "To"
+      "id": "To",
+      "properties": {
+        "prop": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "prop"
+      ]
     },
     "FromRef": {
       "$ref": "Target"
+    },
+    "Target": {
+      "id": "Target",
+      "properties": {
+        "value": {
+          "type": "number"
+        }
+      }
     }
   },
   "serviceDefinition": {

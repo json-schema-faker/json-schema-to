@@ -4,3 +4,9 @@ extend type Query {
 extend type Mutation {
   updateValue: [Target]
 }
+type To {
+  prop: String!
+}
+type Target {
+  value: Float
+}

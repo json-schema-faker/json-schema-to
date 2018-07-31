@@ -10,3 +10,9 @@ message FromId {
 message FromRef {
   repeated Target data = 1;
 }
+message To {
+  required string prop = 1;
+}
+message Target {
+  double value = 1;
+}
