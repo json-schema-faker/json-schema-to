@@ -7,7 +7,7 @@ const Service = require('../lib/service');
 
 /* global describe, it */
 
-describe.only('Service', () => {
+describe('Service', () => {
   describe('static methods', () => {
     describe('constructor', () => {
       it('should fail without arguments', () => {

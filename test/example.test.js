@@ -79,7 +79,7 @@ describe('Test', () => {
           .then(() => {
             _.mockFs({
               'generated.proto': Buffer.from(protoCode),
-              'external.proto': Buffer.from('message Empty {}'),
+              'external.proto': Buffer.from('message Noop {}'),
             });
 
             serverInstance = new _.Server();
