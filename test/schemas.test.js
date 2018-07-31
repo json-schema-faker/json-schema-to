@@ -8,7 +8,7 @@ const Service = require('../lib/service');
 
 /* global describe, it */
 
-describe.only('Schema validation', () => {
+describe('Schema validation', () => {
   const schemasDir = `${__dirname}/schemas`;
 
   function readFile(filePath) {
