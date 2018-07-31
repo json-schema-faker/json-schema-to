@@ -51,7 +51,7 @@ describe('Schema validation', () => {
                 `), service.graphql],
               });
             } catch (e) {
-              throw new Error(`${e.message}\n\n${service.graphql}`);
+              throw new Error(`(GraphQL) ${e.message}\n\n${service.graphql}`);
             }
 
             _.mockFs({
@@ -61,7 +61,7 @@ describe('Schema validation', () => {
             try {
               _.loadPackageDefinition(_.loadSync('generated.proto', {}));
             } catch (e) {
-              throw new Error(`${e.message}\n\n${service.protobuf}`);
+              throw new Error(`(Protobuf) ${e.message}\n\n${service.protobuf}`);
             } finally {
               _.mockFs.restore();
             }
