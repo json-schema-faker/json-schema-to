@@ -2,6 +2,8 @@
 
 /* eslint-disable no-unused-expressions */
 
+const expect = require('chai').expect;
+
 const _ = require('./utils');
 const jst = require('../lib');
 
@@ -10,8 +12,8 @@ const schema = require('./test.schema.json');
 
 /* global describe, it */
 
-describe('Test', () => {
-  it('OK', () => {
+describe('GraphQL & Protobuf', () => {
+  it('should integrate seamlessly', () => {
     const fixtures = require('./fixtures');
 
     let serverInstance;
@@ -66,7 +68,13 @@ describe('Test', () => {
 
             return _.graphql(gql, query, root)
               .then(response => {
-                console.log('>>>', response.data);
+                expect(response.data).to.eql({
+                  anythingElse: {
+                    id: 1,
+                    value: 'FOO',
+                    values: ['baz', 'buzz'],
+                  },
+                });
                 resolve();
               });
           } catch (e) {
@@ -99,7 +107,8 @@ describe('Test', () => {
                   return Promise.resolve()
                     .then(() => validate(ctx.request))
                     .then(() => {
-                      console.log('CALL', ctx.request, validate.errors);
+                      expect(ctx.request).to.eql({ example: 4.2 });
+                      expect(validate.errors).to.be.null;
 
                       reply(null, {
                         id: 99,
@@ -136,7 +145,10 @@ describe('Test', () => {
                   return Promise.resolve()
                     .then(() => validate(response))
                     .then(() => {
-                      console.log(error, response, validate.errors);
+                      expect(error).to.be.null;
+                      expect(validate.errors).to.be.null;
+                      expect(response).to.eql({ id: 99, values: ['OK'] });
+
                       // console.log(protoCode);
                       done();
                     });
