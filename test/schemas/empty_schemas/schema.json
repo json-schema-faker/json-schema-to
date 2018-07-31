@@ -1,10 +1,5 @@
 {
   "id": "Model",
-  "properties": {
-    "noop": {
-      "type": "integer"
-    }
-  },
   "serviceDefinition": {
     "pkg": "test"
   }
