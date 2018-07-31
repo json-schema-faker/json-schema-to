@@ -1,5 +1,10 @@
 {
   "id": "Model",
+  "properties": {
+    "noop": {
+      "type": "integer"
+    }
+  },
   "definitions": {
     "FromId": {
       "id": "To",
@@ -13,7 +18,7 @@
       ]
     },
     "FromRef": {
-      "$ref": "Target"
+      "$ref": "#/definitions/Target"
     },
     "Target": {
       "id": "Target",
@@ -25,6 +30,7 @@
     }
   },
   "serviceDefinition": {
+    "pkg": "test",
     "calls": [
       {
         "get": "readValue",

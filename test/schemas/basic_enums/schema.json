@@ -1,5 +1,10 @@
 {
   "id": "Model",
+  "properties": {
+    "noop": {
+      "type": "integer"
+    }
+  },
   "definitions": {
     "WithEnumType": {
       "id": "WithEnumType",
@@ -15,6 +20,7 @@
     }
   },
   "serviceDefinition": {
+    "pkg": "test",
     "calls": [
       {
         "get": "fromValue",

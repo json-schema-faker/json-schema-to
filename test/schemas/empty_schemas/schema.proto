@@ -1,2 +1,5 @@
 syntax = "proto3";
-package model;
+package test;
+message Model {
+  int32 noop = 1;
+}

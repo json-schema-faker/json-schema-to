@@ -1,0 +1,20 @@
+{
+  "id": "Model",
+  "properties": {
+    "str": {
+      "type": "string"
+    },
+    "int": {
+      "type": "integer"
+    },
+    "dec": {
+      "type": "number"
+    },
+    "bol": {
+      "type": "boolean"
+    }
+  },
+  "serviceDefinition": {
+    "pkg": "test"
+  }
+}

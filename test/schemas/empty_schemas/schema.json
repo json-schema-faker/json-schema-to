@@ -1,4 +1,11 @@
 {
   "id": "Model",
-  "serviceDefinition": {}
+  "properties": {
+    "noop": {
+      "type": "integer"
+    }
+  },
+  "serviceDefinition": {
+    "pkg": "test"
+  }
 }

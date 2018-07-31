@@ -1,6 +1,6 @@
 syntax = "proto3";
-package model;
-service Model {
+package test;
+service Test {
   rpc readValue(Noop) returns(FromId) {}
   rpc updateValue(Noop) returns(FromRef) {}
 }
@@ -15,4 +15,7 @@ message To {
 }
 message Target {
   double value = 1;
+}
+message Model {
+  int32 noop = 1;
 }

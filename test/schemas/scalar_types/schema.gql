@@ -1,0 +1,6 @@
+type Model {
+  str: String
+  int: Int
+  dec: Float
+  bol: Boolean
+}
