@@ -1,7 +1,6 @@
 'use strict';
 
 const fs = require('fs');
-const ls = require('glob').sync;
 const expect = require('chai').expect;
 
 const Service = require('../lib/service');
@@ -41,16 +40,17 @@ describe.only('Service', () => {
       return JSON.parse(readFile(filePath));
     }
 
-    ls('**/*.json', { cwd: schemasDir })
-      .forEach(schemaFile => {
-        const schemaId = schemaFile.replace('.json', '');
+    fs.readdirSync(schemasDir)
+      .filter(x => x.indexOf('.') === -1)
+      .forEach(name => {
+        const schemaId = `${schemasDir}/${name}/schema`;
 
-        it(schemaFile, () => {
-          const data = readJSON(`${schemasDir}/${schemaFile}`);
+        it(name.replace(/[^a-z\d]+/g, ' ').trim(), () => {
+          const data = readJSON(`${schemaId}.json`);
           const service = new Service(data);
 
-          const gqlFile = `${schemasDir}/${schemaId}.gql`;
-          const protoFile = `${schemasDir}/${schemaId}.proto`;
+          const gqlFile = `${schemaId}.gql`;
+          const protoFile = `${schemaId}.proto`;
 
           if (data.debug) {
             console.log(service.graphql);
