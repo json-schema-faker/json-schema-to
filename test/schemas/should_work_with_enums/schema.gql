@@ -1,0 +1,11 @@
+extend type Query {
+  fromValue: WithEnumType
+}
+type WithEnumType {
+  role: ENUM_1
+}
+enum ENUM_1 {
+  Ce
+  Two
+  Tres
+}

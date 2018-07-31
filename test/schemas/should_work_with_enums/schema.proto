@@ -1,0 +1,13 @@
+syntax = "proto3";
+package model;
+service Model {
+  rpc fromValue(Noop) returns(WithEnumType) {}
+}
+message WithEnumType {
+  ENUM_1 role = 1;
+}
+enum ENUM_1 {
+  Ce = 0;
+  Two = 1;
+  Tres = 2;
+}

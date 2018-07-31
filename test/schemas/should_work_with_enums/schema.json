@@ -1,0 +1,25 @@
+{
+  "id": "Model",
+  "definitions": {
+    "WithEnumType": {
+      "id": "WithEnumType",
+      "properties": {
+        "role": {
+          "enum": [
+            "Ce",
+            "Two",
+            "Tres"
+          ]
+        }
+      }
+    }
+  },
+  "serviceDefinition": {
+    "calls": [
+      {
+        "get": "fromValue",
+        "resp": "WithEnumType"
+      }
+    ]
+  }
+}
