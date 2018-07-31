@@ -3,6 +3,7 @@
 const fs = require('fs');
 const expect = require('chai').expect;
 
+const _ = require('./utils');
 const Service = require('../lib/service');
 
 /* global describe, it */
@@ -37,6 +38,30 @@ describe('Schema validation', () => {
 
         expect(service.graphql.trim()).to.eql(readFile(gqlFile).trim());
         expect(service.protobuf.trim()).to.eql(readFile(protoFile).trim());
+
+        try {
+          _.makeExecutableSchema({
+            typeDefs: [_.trim(`
+              type Query { dummy: [String] }
+              type Mutation { dummy: [String] }
+              schema { query: Query, mutation: Mutation }
+            `), service.graphql],
+          });
+        } catch (e) {
+          throw new Error(`${e.message}\n\n${service.graphql}`);
+        }
+
+        _.mockFs({
+          'generated.proto': Buffer.from(`${service.protobuf}\nmessage Noop {}`),
+        });
+
+        try {
+          _.loadPackageDefinition(_.loadSync('generated.proto', {}));
+        } catch (e) {
+          throw new Error(`${e.message}\n\n${service.protobuf}`);
+        } finally {
+          _.mockFs.restore();
+        }
       });
     });
 });
