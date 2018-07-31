@@ -29,7 +29,7 @@ describe('Schema validation', () => {
         const service = new Service(data);
 
         return Promise.resolve()
-          .then(() => service.sync())
+          .then(() => service.load())
           .then(() => {
             const gqlFile = `${schemaId}.gql`;
             const protoFile = `${schemaId}.proto`;
