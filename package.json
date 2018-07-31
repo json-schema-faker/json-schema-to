@@ -6,10 +6,10 @@
   "scripts": {
     "watch": "npm test -- -w",
     "test": "npm run test:unit --",
-    "test:ci": "npm run coverage && npm run report:upload --",
+    "test:ci": "npm run coverage && npm run report --",
     "test:unit": "NODE_ENV=test _mocha --watch-extensions gql,json,proto --exit --recursive -bR spec 'test/**/*.test.js'",
     "coverage": "NODE_ENV=test istanbul cover --root lib -- _mocha --exit --recursive -bR spec 'test/**/*.test.js'",
-    "report:upload": "codecov --file=coverage/lcov.info -e TRAVIS_NODE_VERSION"
+    "report": "codecov --file=coverage/lcov.info -e TRAVIS_NODE_VERSION"
   },
   "keywords": [],
   "author": "Alvaro Cabrera <pateketrueke@gmail.com>",
@@ -32,7 +32,6 @@
     "json-schema-faker": "^0.5.0-rc15",
     "mocha": "^5.2.0",
     "mock-fs": "^4.5.0",
-    "nyc": "^12.0.2",
     "testdouble": "^3.8.1"
   }
 }
