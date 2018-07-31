@@ -8,7 +8,7 @@ const Service = require('../lib/service');
 
 /* global describe, it */
 
-describe('Schema validation', () => {
+describe.only('Schema validation', () => {
   const schemasDir = `${__dirname}/schemas`;
 
   function readFile(filePath) {
@@ -28,40 +28,44 @@ describe('Schema validation', () => {
         const data = readJSON(`${schemaId}.json`);
         const service = new Service(data);
 
-        const gqlFile = `${schemaId}.gql`;
-        const protoFile = `${schemaId}.proto`;
+        return Promise.resolve()
+          .then(() => service.sync())
+          .then(() => {
+            const gqlFile = `${schemaId}.gql`;
+            const protoFile = `${schemaId}.proto`;
 
-        if (data.debug) {
-          console.log(service.graphql);
-          console.log(service.protobuf);
-        }
+            if (data.debug) {
+              console.log(service.graphql);
+              console.log(service.protobuf);
+            }
 
-        expect(service.graphql.trim()).to.eql(readFile(gqlFile).trim());
-        expect(service.protobuf.trim()).to.eql(readFile(protoFile).trim());
+            expect(service.graphql.trim()).to.eql(readFile(gqlFile).trim());
+            expect(service.protobuf.trim()).to.eql(readFile(protoFile).trim());
 
-        try {
-          _.makeExecutableSchema({
-            typeDefs: [_.trim(`
-              type Query { dummy: [String] }
-              type Mutation { dummy: [String] }
-              schema { query: Query, mutation: Mutation }
-            `), service.graphql],
+            try {
+              _.makeExecutableSchema({
+                typeDefs: [_.trim(`
+                  type Query { dummy: [String] }
+                  type Mutation { dummy: [String] }
+                  schema { query: Query, mutation: Mutation }
+                `), service.graphql],
+              });
+            } catch (e) {
+              throw new Error(`${e.message}\n\n${service.graphql}`);
+            }
+
+            _.mockFs({
+              'generated.proto': Buffer.from(`${service.protobuf}\nmessage Noop {}`),
+            });
+
+            try {
+              _.loadPackageDefinition(_.loadSync('generated.proto', {}));
+            } catch (e) {
+              throw new Error(`${e.message}\n\n${service.protobuf}`);
+            } finally {
+              _.mockFs.restore();
+            }
           });
-        } catch (e) {
-          throw new Error(`${e.message}\n\n${service.graphql}`);
-        }
-
-        _.mockFs({
-          'generated.proto': Buffer.from(`${service.protobuf}\nmessage Noop {}`),
-        });
-
-        try {
-          _.loadPackageDefinition(_.loadSync('generated.proto', {}));
-        } catch (e) {
-          throw new Error(`${e.message}\n\n${service.protobuf}`);
-        } finally {
-          _.mockFs.restore();
-        }
       });
     });
 });
