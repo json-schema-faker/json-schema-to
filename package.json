@@ -3,6 +3,9 @@
   "version": "0.0.4",
   "description": "JSON-Schema To ≤GraphQL|Protobuf|Code≥.™",
   "main": "index.js",
+  "bin": {
+    "json-schema-to": "bin/cli"
+  },
   "scripts": {
     "watch": "npm test -- -w",
     "test": "npm run test:unit --",
@@ -15,7 +18,9 @@
   "author": "Alvaro Cabrera <pateketrueke@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "json-schema-ref-parser": "^5.1.2"
+    "glob": "^7.1.2",
+    "json-schema-ref-parser": "^5.1.2",
+    "wargs": "^0.8.1"
   },
   "devDependencies": {
     "@grpc/proto-loader": "^0.3.0",
