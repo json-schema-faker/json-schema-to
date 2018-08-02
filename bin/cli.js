@@ -13,7 +13,8 @@ const cwd = process.cwd();
 const pkg = argv.flags.pkg || path.basename(cwd);
 const src = argv.flags.src || path.join(cwd, 'schemas');
 const dest = argv.flags.dest || path.join(cwd, 'generated');
-const refs = argv.flags.refs || undefined;
+const refs = (argv.flags.refs || '').split(',').filter(Boolean);
+const types = argv.flags.types || undefined;
 
 function load(fromDir) {
   return glob.sync('**/*.json', { cwd: fromDir })
@@ -34,7 +35,7 @@ const schemas = load(src).reduce((prev, cur) => {
   return prev;
 }, {});
 
-const references = refs ? load(refs) : [];
+const references = types ? load(types) : [];
 
 const Service = require('../lib/Service');
 
@@ -67,7 +68,7 @@ Promise.resolve()
       throw new Error(`Empty bundle, given directory: ./${path.relative(cwd, src)}`);
     }
 
-    return Service.merge(pkg, bundle);
+    return Service.merge({ pkg, refs }, bundle);
   })
   .then(repository => {
     if (!fs.existsSync(dest)) {
