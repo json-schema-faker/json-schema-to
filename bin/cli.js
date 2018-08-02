@@ -23,7 +23,7 @@ function load(fromDir) {
       const schema = JSON.parse(fs.readFileSync(x));
 
       if (!schema.id) {
-        schema.id = path.basename(x, '.json');
+        throw new Error(`Missing schema identifier for ./${path.relative(cwd, x)}`);
       }
 
       return schema;
