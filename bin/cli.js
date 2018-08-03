@@ -116,6 +116,6 @@ Promise.resolve()
     output(common, repository);
   })
   .catch(e => {
-    process.stderr.write(`${e.message}\n`);
+    process.stderr.write(`${e.stack}\n`);
     process.exit(1);
   });
