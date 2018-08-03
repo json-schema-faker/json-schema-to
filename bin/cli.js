@@ -1,4 +1,16 @@
-const argv = require('wargs')(process.argv.slice(2));
+const argv = require('wargs')(process.argv.slice(2), {
+  alias: {
+    w: 'cwd',
+    k: 'pkg',
+    s: 'src',
+    d: 'dest',
+    r: 'refs',
+    t: 'types',
+    c: 'common',
+    b: 'bundle',
+  },
+  boolean: 'b',
+});
 
 if (!argv.flags.graphql && !argv.flags.protobuf) {
   process.stderr.write('Unknown output, please give --graphql or --protobuf\n');
