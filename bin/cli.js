@@ -94,9 +94,7 @@ Promise.resolve()
     }
 
     if (argv.flags.bundle) {
-      return Service.bundle({
-        pkg, refs, params, common,
-      }, models);
+      return Service.bundle({ pkg, refs, params }, models);
     }
 
     return Service.merge({ pkg, refs, params }, models);
