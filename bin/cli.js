@@ -11,12 +11,12 @@ const fs = require('fs');
 
 const utils = require('../lib/utils');
 
-const cwd = process.cwd();
+const cwd = path.resolve(argv.flags.cwd || '.');
 const pkg = argv.flags.pkg || path.basename(cwd);
-const src = argv.flags.src || path.join(cwd, 'schemas');
+const src = argv.flags.src || path.join(cwd, 'models');
 const dest = argv.flags.dest || path.join(cwd, 'generated');
 const refs = (argv.flags.refs || '').split(',').filter(Boolean);
-const types = argv.flags.types || undefined;
+const types = argv.flags.types ? path.join(cwd, argv.flags.types === true ? 'types' : argv.flags.types) : undefined;
 const common = utils.safe(argv.flags.common || 'common', '-');
 
 function load(fromDir) {
