@@ -20,7 +20,8 @@
   "dependencies": {
     "glob": "^7.1.2",
     "json-schema-ref-parser": "^5.1.2",
-    "wargs": "^0.8.1"
+    "wargs": "^0.8.1",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "@grpc/proto-loader": "^0.3.0",

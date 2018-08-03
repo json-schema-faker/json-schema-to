@@ -18,6 +18,7 @@ if (!argv.flags.graphql && !argv.flags.protobuf) {
   process.exit(1);
 }
 
+const YAML = require('yamljs');
 const glob = require('glob');
 const path = require('path');
 const fs = require('fs');
@@ -33,11 +34,17 @@ const types = argv.flags.types ? path.join(cwd, argv.flags.types === true ? 'typ
 const params = argv.flags.params || undefined;
 const common = utils.safe(argv.flags.common || 'common', '-');
 
+function read(file) {
+  return fs.readFileSync(file, 'utf8').toString();
+}
+
 function load(fromDir) {
-  return glob.sync('**/*.json', { cwd: fromDir })
+  return glob.sync('**/*.{yml,yaml,json}', { cwd: fromDir })
     .map(x => path.join(fromDir, x))
     .map(x => {
-      const schema = JSON.parse(fs.readFileSync(x));
+      const schema = x.indexOf('.json') !== -1
+        ? JSON.parse(read(x))
+        : YAML.parse(read(x));
 
       if (!schema.id) {
         throw new Error(`Missing schema identifier for ./${path.relative(cwd, x)}`);
@@ -48,7 +55,10 @@ function load(fromDir) {
 }
 
 const schemas = load(src).reduce((prev, cur) => {
-  prev[cur.id] = cur;
+  prev[cur.id] = prev[cur.id] || {};
+
+  Object.assign(prev[cur.id], cur);
+
   return prev;
 }, {});
 
