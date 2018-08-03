@@ -113,7 +113,7 @@ Promise.resolve()
       return;
     }
 
-    output('schema', repository);
+    output(common, repository);
   })
   .catch(e => {
     process.stderr.write(`${e.message}\n`);
