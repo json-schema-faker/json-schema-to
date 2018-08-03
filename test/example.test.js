@@ -97,7 +97,7 @@ describe('GraphQL & Protobuf', () => {
               const packageDefinition = _.loadSync('generated.proto', protoOptions);
               const packageObject = _.loadPackageDefinition(packageDefinition);
 
-              serverInstance.addService(packageObject.fooBar.FooBar.service, {
+              serverInstance.addService(packageObject.foo_bar.fooBar.service, {
                 anythingElse(ctx, reply) {
                   reply(null, {});
                 },
@@ -123,7 +123,8 @@ describe('GraphQL & Protobuf', () => {
               serverInstance.start();
 
               return new Promise(done => {
-                const gateway = new packageObject.fooBar.FooBar('0.0.0.0:50051', _.credentials.createInsecure());
+                const FooBarService = packageObject.foo_bar.fooBar;
+                const gateway = new FooBarService('0.0.0.0:50051', _.credentials.createInsecure());
 
                 const payload = {
                   value: 'OK',

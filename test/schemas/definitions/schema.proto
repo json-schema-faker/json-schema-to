@@ -1,8 +1,8 @@
 syntax = "proto3";
 package test;
 service model {
-  rpc readValue(Noop) returns(FromId) {}
-  rpc updateValue(Noop) returns(FromRef) {}
+  rpc readValue(Noop) returns(FromId);
+  rpc updateValue(Noop) returns(FromRef);
 }
 message FromId {
   To data = 1;
