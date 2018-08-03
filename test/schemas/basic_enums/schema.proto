@@ -4,12 +4,12 @@ service Test {
   rpc fromValue(Noop) returns(WithEnumType) {}
 }
 message WithEnumType {
-  ENUM_1 role = 1;
+  WithEnumType_role_1 role = 1;
 }
 message Model {
   int32 noop = 1;
 }
-enum ENUM_1 {
+enum WithEnumType_role_1 {
   Ce = 0;
   Two = 1;
   Tres = 2;
