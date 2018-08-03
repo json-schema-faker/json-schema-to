@@ -1,12 +1,12 @@
 syntax = "proto3";
 package test;
-service model {
+service Model {
   rpc fromValue(Noop) returns(WithEnumType);
 }
 message WithEnumType {
   WithEnumType_role_1 role = 1;
 }
-message Model {
+message Model_ {
   int32 noop = 1;
 }
 enum WithEnumType_role_1 {
