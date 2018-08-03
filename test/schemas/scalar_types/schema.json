@@ -14,7 +14,7 @@
       "type": "boolean"
     }
   },
-  "serviceDefinition": {
+  "service": {
     "pkg": "test"
   }
 }

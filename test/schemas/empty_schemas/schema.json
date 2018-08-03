@@ -1,6 +1,6 @@
 {
   "id": "Model",
-  "serviceDefinition": {
+  "service": {
     "pkg": "test"
   }
 }

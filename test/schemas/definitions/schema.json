@@ -29,7 +29,7 @@
       }
     }
   },
-  "serviceDefinition": {
+  "service": {
     "pkg": "test",
     "calls": [
       {
