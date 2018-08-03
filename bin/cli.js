@@ -9,12 +9,15 @@ const glob = require('glob');
 const path = require('path');
 const fs = require('fs');
 
+const utils = require('../lib/utils');
+
 const cwd = process.cwd();
 const pkg = argv.flags.pkg || path.basename(cwd);
 const src = argv.flags.src || path.join(cwd, 'schemas');
 const dest = argv.flags.dest || path.join(cwd, 'generated');
 const refs = (argv.flags.refs || '').split(',').filter(Boolean);
 const types = argv.flags.types || undefined;
+const common = utils.kebab(argv.flags.common || 'common');
 
 function load(fromDir) {
   return glob.sync('**/*.json', { cwd: fromDir })
@@ -40,15 +43,13 @@ const references = types ? load(types) : [];
 const Service = require('../lib/Service');
 
 function run(desc, task) {
-  process.stdout.write(`\r${desc} ... `);
-
-  const start = new Date();
+  process.stdout.write(`\r${desc}`);
 
   try {
     task();
-    process.stdout.write(`OK (in ${(new Date() - start) / 1000}ms)\n`);
+    process.stdout.write('\n');
   } catch (e) {
-    process.stderr.write(`ERROR.\n${e.message}\n`);
+    process.stderr.write(` ... FAILED\n  ${e.stack}\n`);
     process.exit(1);
   }
 }
@@ -61,27 +62,44 @@ function write(file, callback) {
   });
 }
 
+function output(name, model) {
+  if (argv.flags.graphql) {
+    write(`${name}.gql`, () => model.graphql);
+  }
+
+  if (argv.flags.protobuf) {
+    write(`${name}.proto`, () => model.protobuf);
+  }
+}
+
 Promise.resolve()
   .then(() => Service.load(src, schemas, references))
-  .then(bundle => {
-    if (!bundle.length) {
+  .then(models => {
+    if (!models.length) {
       throw new Error(`Empty bundle, given directory: ./${path.relative(cwd, src)}`);
     }
 
-    return Service.merge({ pkg, refs }, bundle);
+    if (argv.flags.bundle) {
+      return Service.bundle({ pkg, refs, common }, models);
+    }
+
+    return Service.merge({ pkg, refs }, models);
   })
   .then(repository => {
     if (!fs.existsSync(dest)) {
       fs.mkdirSync(dest);
     }
 
-    if (argv.flags.graphql) {
-      write('schema.gql', () => repository.graphql);
+    if (repository.models) {
+      repository.models.forEach(x => {
+        output(utils.kebab(x.modelId), x);
+      });
+
+      output(common, repository);
+      return;
     }
 
-    if (argv.flags.protobuf) {
-      write('schema.proto', () => repository.protobuf);
-    }
+    output('schema', repository);
   })
   .catch(e => {
     process.stderr.write(`${e.message}\n`);
