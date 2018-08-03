@@ -71,7 +71,7 @@ function run(desc, task) {
 function write(file, callback) {
   const destFile = path.resolve(dest, file);
 
-  run(`write ./${path.relative(cwd, destFile)}`, () => {
+  run(`write ./${path.relative(process.cwd(), destFile)}`, () => {
     fs.writeFileSync(destFile, callback());
   });
 }
