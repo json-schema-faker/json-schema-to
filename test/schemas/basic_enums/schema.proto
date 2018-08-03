@@ -1,6 +1,6 @@
 syntax = "proto3";
 package test;
-service Test {
+service model {
   rpc fromValue(Noop) returns(WithEnumType) {}
 }
 message WithEnumType {

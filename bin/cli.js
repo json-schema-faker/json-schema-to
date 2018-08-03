@@ -17,7 +17,7 @@ const src = argv.flags.src || path.join(cwd, 'schemas');
 const dest = argv.flags.dest || path.join(cwd, 'generated');
 const refs = (argv.flags.refs || '').split(',').filter(Boolean);
 const types = argv.flags.types || undefined;
-const common = utils.kebab(argv.flags.common || 'common');
+const common = utils.safe(argv.flags.common || 'common', '-');
 
 function load(fromDir) {
   return glob.sync('**/*.json', { cwd: fromDir })
@@ -92,7 +92,7 @@ Promise.resolve()
 
     if (repository.models) {
       repository.models.forEach(x => {
-        output(utils.kebab(x.modelId), x);
+        output(utils.safe(x.modelId, '-'), x);
       });
 
       output(common, repository);
