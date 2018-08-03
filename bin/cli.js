@@ -6,10 +6,11 @@ const argv = require('wargs')(process.argv.slice(2), {
     d: 'dest',
     r: 'refs',
     t: 'types',
+    p: 'params',
     c: 'common',
     b: 'bundle',
   },
-  boolean: 'b',
+  boolean: 'bp',
 });
 
 if (!argv.flags.graphql && !argv.flags.protobuf) {
@@ -29,6 +30,7 @@ const src = argv.flags.src || path.join(cwd, 'models');
 const dest = argv.flags.dest || path.join(cwd, 'generated');
 const refs = (argv.flags.refs || '').split(',').filter(Boolean);
 const types = argv.flags.types ? path.join(cwd, argv.flags.types === true ? 'types' : argv.flags.types) : undefined;
+const params = argv.flags.params || undefined;
 const common = utils.safe(argv.flags.common || 'common', '-');
 
 function load(fromDir) {
@@ -92,10 +94,12 @@ Promise.resolve()
     }
 
     if (argv.flags.bundle) {
-      return Service.bundle({ pkg, refs, common }, models);
+      return Service.bundle({
+        pkg, refs, params, common,
+      }, models);
     }
 
-    return Service.merge({ pkg, refs }, models);
+    return Service.merge({ pkg, refs, params }, models);
   })
   .then(repository => {
     if (!fs.existsSync(dest)) {
