@@ -4,6 +4,7 @@ const argv = require('wargs')(process.argv.slice(2), {
     k: 'pkg',
     s: 'src',
     d: 'dest',
+    j: 'json',
     r: 'refs',
     t: 'types',
     p: 'params',
@@ -116,7 +117,13 @@ Promise.resolve()
 
     if (repository.models) {
       repository.models.forEach(x => {
-        output(utils.safe(x.modelId, '-'), x);
+        const name = utils.safe(x.modelId, '-');
+
+        output(name, x, true);
+
+        if (argv.flags.json) {
+          write(`${name}.json`, () => JSON.stringify(schemas[x.modelId], null, 2));
+        }
       });
 
       output(common, repository);
