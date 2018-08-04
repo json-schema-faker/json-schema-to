@@ -4,7 +4,6 @@ const argv = require('wargs')(process.argv.slice(2), {
     k: 'pkg',
     s: 'src',
     d: 'dest',
-    j: 'json',
     r: 'refs',
     t: 'types',
     p: 'params',
