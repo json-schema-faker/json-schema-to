@@ -14,8 +14,8 @@ const argv = require('wargs')(process.argv.slice(2), {
   boolean: 'bp',
 });
 
-if (!argv.flags.graphql && !argv.flags.protobuf) {
-  process.stderr.write('Unknown output, please give --graphql or --protobuf\n');
+if (!(argv.flags.json || argv.flags.graphql || argv.flags.protobuf)) {
+  process.stderr.write('Unknown output, please give --json, --graphql or --protobuf\n');
   process.exit(1);
 }
 
