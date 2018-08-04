@@ -5,7 +5,7 @@ service Model {
   rpc updateValue(Noop) returns(_FromRef);
 }
 message _FromId {
-  _To data = 1;
+  required _To data = 1;
 }
 message _FromRef {
   repeated _Target data = 1;
