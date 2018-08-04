@@ -1,21 +1,21 @@
 syntax = "proto3";
 package test;
 service Model {
-  rpc readValue(Noop) returns(FromId);
-  rpc updateValue(Noop) returns(FromRef);
+  rpc readValue(Noop) returns(_FromId);
+  rpc updateValue(Noop) returns(_FromRef);
 }
-message FromId {
-  To data = 1;
+message _FromId {
+  _To data = 1;
 }
-message FromRef {
-  repeated Target data = 1;
+message _FromRef {
+  repeated _Target data = 1;
 }
-message To {
+message _To {
   required string prop = 1;
 }
-message Target {
+message _Target {
   double value = 1;
 }
-message Model_ {
+message _Model {
   int32 noop = 1;
 }
