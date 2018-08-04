@@ -119,15 +119,16 @@ Promise.resolve()
       repository.models.forEach(x => {
         const name = utils.safe(x.modelId, '-');
 
-        output(name, x, true);
-
         if (argv.flags.json) {
           write(`${name}.json`, () => JSON.stringify(schemas[x.modelId], null, 2));
         }
+
+        output(name, x, true);
       });
 
-      output(common, repository);
-      return;
+      if (argv.flags.json) {
+        write(`${common}.json`, () => JSON.stringify(references, null, 2));
+      }
     }
 
     output(common, repository);
