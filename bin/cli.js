@@ -1,3 +1,28 @@
+'use strict';
+
+const USAGE_INFO = `
+JSON-Schema To ≤GraphQL|Protobuf|Code≥.™
+
+  -w, --cwd       Working directory for all sources (default 'process.cwd()')
+  -s, --src       List schemas from this directory (default 'models')
+  -d, --dest      Output definitions to this directory (default 'generated')
+
+  -k, --pkg       Package name for generated services (--protobuf only)
+  -r, --refs      External imports for generated services (--protobuf only)
+
+  -t, --types     Scan for additional schemas, if boolean is given 'types' is used
+  -c, --common    Filename used for saving common definitions (default 'common')
+  -b, --bundle    Generate multiple files instead of a single file as result
+
+      --json      Produce JSON as output
+      --graphql   Produce GraphQL as output
+      --protobuf  Produce Protobuf as output
+
+Examples:
+  json-schema-to -tk my-app -w src/schema --json
+  json-schema-to -bt definitions --protobuf --graphql
+`;
+
 const argv = require('wargs')(process.argv.slice(2), {
   alias: {
     w: 'cwd',
@@ -6,7 +31,6 @@ const argv = require('wargs')(process.argv.slice(2), {
     d: 'dest',
     r: 'refs',
     t: 'types',
-    p: 'params',
     c: 'common',
     b: 'bundle',
   },
@@ -14,6 +38,7 @@ const argv = require('wargs')(process.argv.slice(2), {
 });
 
 if (!(argv.flags.json || argv.flags.graphql || argv.flags.protobuf)) {
+  process.stderr.write(`${USAGE_INFO}\n`);
   process.stderr.write('Unknown output, please give --json, --graphql or --protobuf\n');
   process.exit(1);
 }
@@ -27,8 +52,8 @@ const utils = require('../lib/utils');
 
 const cwd = path.resolve(argv.flags.cwd || '.');
 const pkg = argv.flags.pkg || path.basename(cwd);
-const src = argv.flags.src || path.join(cwd, 'models');
-const dest = argv.flags.dest || path.join(cwd, 'generated');
+const src = path.join(cwd, argv.flags.src || 'models');
+const dest = path.join(cwd, argv.flags.dest || 'generated');
 const refs = (argv.flags.refs || '').split(',').filter(Boolean);
 const types = argv.flags.types ? path.join(cwd, argv.flags.types === true ? 'types' : argv.flags.types) : undefined;
 const params = argv.flags.params || undefined;
@@ -47,7 +72,7 @@ function load(fromDir) {
         : YAML.parse(read(x));
 
       if (!schema.id) {
-        throw new Error(`Missing schema identifier for ./${path.relative(cwd, x)}`);
+        throw new Error(`Missing schema identifier for ./${path.relative(process.cwd(), x)}`);
       }
 
       return schema;
@@ -100,7 +125,7 @@ Promise.resolve()
   .then(() => Service.load(src, schemas, references))
   .then(models => {
     if (!models.length) {
-      throw new Error(`Empty bundle, given directory: ./${path.relative(cwd, src)}`);
+      throw new Error(`Empty bundle, ${Object.keys(schemas).length} schemas found in ./${path.relative(process.cwd(), src)}`);
     }
 
     if (argv.flags.bundle) {
