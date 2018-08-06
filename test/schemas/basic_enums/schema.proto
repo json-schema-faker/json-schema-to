@@ -6,9 +6,6 @@ service Model {
 message _WithEnumType {
   _WithEnumType_role_1 role = 1;
 }
-message _Model {
-  int32 noop = 1;
-}
 enum _WithEnumType_role_1 {
   Ce = 0;
   Two = 1;

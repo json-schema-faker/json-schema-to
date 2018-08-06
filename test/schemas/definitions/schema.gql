@@ -10,6 +10,3 @@ type To {
 type Target {
   value: Float
 }
-type Model {
-  noop: Int
-}

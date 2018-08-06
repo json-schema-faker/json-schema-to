@@ -1,3 +1,6 @@
+extend type Query {
+  Model: Model
+}
 type Model {
   str: String
   int: Int

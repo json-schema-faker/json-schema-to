@@ -15,6 +15,9 @@
     }
   },
   "service": {
-    "pkg": "test"
+    "pkg": "test",
+    "calls": [
+      { "get": "Model", "resp": "Model" }
+    ]
   }
 }

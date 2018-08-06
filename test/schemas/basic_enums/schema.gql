@@ -4,9 +4,6 @@ extend type Query {
 type WithEnumType {
   role: WithEnumType_role_1
 }
-type Model {
-  noop: Int
-}
 enum WithEnumType_role_1 {
   Ce
   Two

@@ -16,6 +16,3 @@ message _To {
 message _Target {
   double value = 1;
 }
-message _Model {
-  int32 noop = 1;
-}
