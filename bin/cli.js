@@ -89,7 +89,7 @@ const schemas = load(src).reduce((prev, cur) => {
 
 const references = types ? load(types) : [];
 
-const Service = require('../lib/Service');
+const Service = require('../lib/service');
 
 function run(desc, task) {
   process.stdout.write(`\r${desc}`);
