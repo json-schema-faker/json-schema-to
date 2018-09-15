@@ -128,7 +128,7 @@ Promise.resolve()
       throw new Error(`Empty bundle, ${Object.keys(schemas).length} schemas found in ./${path.relative(process.cwd(), src)}`);
     }
 
-    if (argv.flags.bundle) {
+    if (argv.flags.bundle || argv.flags.json) {
       return Service.bundle({ pkg, refs, params }, models);
     }
 
