@@ -6,6 +6,14 @@
   "bin": {
     "json-schema-to": "bin/cli"
   },
+  "engines": {
+    "node": ">= 6"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/agave/json-schema-to"
+  },
+  "bugs": "https://github.com/agave/json-schema-to/issues",
   "scripts": {
     "watch": "npm test -- -w",
     "test": "npm run test:unit --",
@@ -14,7 +22,15 @@
     "coverage": "NODE_ENV=test istanbul cover --root lib -- _mocha --exit --recursive -bR spec 'test/**/*.test.js'",
     "report": "codecov --file=coverage/lcov.info -e TRAVIS_NODE_VERSION"
   },
-  "keywords": [],
+  "keywords": [
+    "json",
+    "json-schema",
+    "protobuf",
+    "graphql",
+    "schemas",
+    "models",
+    "types"
+  ],
   "author": "Alvaro Cabrera <pateketrueke@gmail.com>",
   "license": "MIT",
   "dependencies": {
