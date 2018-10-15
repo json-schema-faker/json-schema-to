@@ -8,6 +8,15 @@
 
 Generate third-party definitions directly from your JSON-Schema.
 
+## Contribute!
+
+This module is under development, we're missing:
+
+- [ ] Documentation
+- [ ] Advanced examples
+- [ ] Complete unit-testing
+- [ ] Complete code-coverage
+
 ## How it works?
 
 JSON-Schema, GraphQL and Protobuf are generated from YAML definitions, e.g.
