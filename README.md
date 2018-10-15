@@ -1,3 +1,9 @@
+[![Build Status](https://travis-ci.org/agave/json-schema-to.svg?branch=master)](https://travis-ci.org/agave/json-schema-to)
+[![NPM version](https://badge.fury.io/js/json-schema-to.svg)](http://badge.fury.io/js/json-schema-to)
+[![Coverage Status](https://codecov.io/github/agave/json-schema-to/coverage.svg?branch=master)](https://codecov.io/github/agave/json-schema-to?branch=master)
+[![Dependency Status](https://david-dm.org/agave/json-schema-to/status.svg)](https://david-dm.org/agave/json-schema-to)
+[![devDependency Status](https://david-dm.org/agave/json-schema-to/dev-status.svg)](https://david-dm.org/agave/json-schema-to#info=devDependencies)
+
 # JSON-Schema To <br> ≤GraphQL|Protobuf|Code≥.™
 
 Generate third-party definitions directly from your JSON-Schema.
