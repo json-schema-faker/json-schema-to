@@ -1,9 +1,9 @@
 syntax = "proto3";
 package test;
-service Model {
-  rpc Model(Noop) returns(_Model);
+service ModelService {
+  rpc Model(Noop) returns(Model);
 }
-message _Model {
+message Model {
   string str = 1;
   int32 int = 2;
   double dec = 3;
