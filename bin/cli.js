@@ -140,6 +140,8 @@ Promise.resolve()
     }
 
     if (repository.models) {
+      const names = [];
+
       repository.models.forEach(x => {
         const name = utils.safe(x.modelId, '-');
 
@@ -148,10 +150,15 @@ Promise.resolve()
         }
 
         output(name, x, true);
+
+        names.push(name);
       });
 
       if (argv.flags.json) {
         write(`${common}.json`, () => JSON.stringify(references, null, 2));
+        write(`${common}.js`, () => `module.exports = [\n${
+          names.map(x => `  require('./${x}.json'),\n`).join('')
+        }].concat(require('./${common}.json'));\n`);
       }
     }
 
