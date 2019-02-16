@@ -139,15 +139,17 @@ Promise.resolve()
       fs.mkdirSync(dest);
     }
 
+    if (argv.flags.json) {
+      Object.keys(schemas).forEach(x => {
+        write(`${utils.safe(x, '-')}.json`, () => JSON.stringify(schemas[x], null, 2));
+      });
+    }
+
     if (repository.models) {
       const names = [];
 
       repository.models.forEach(x => {
         const name = utils.safe(x.modelId, '-');
-
-        if (argv.flags.json) {
-          write(`${name}.json`, () => JSON.stringify(schemas[x.modelId], null, 2));
-        }
 
         output(name, x, true);
 
