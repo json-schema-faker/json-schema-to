@@ -11,6 +11,7 @@ JSON-Schema To ≤GraphQL|Protobuf|Code≥.™
   -r, --refs      External imports for generated services (--protobuf only)
 
   -t, --types     Scan for additional schemas, if boolean is given 'types' is used
+  -i, --ignore    Pattern to skip some files, e.g. \`-i sample\` (--json only)
   -c, --common    Filename used for saving common definitions (default 'common')
   -b, --bundle    Generate multiple files instead of a single file as result
 
@@ -31,6 +32,7 @@ const argv = require('wargs')(process.argv.slice(2), {
     d: 'dest',
     r: 'refs',
     t: 'types',
+    i: 'ignore',
     c: 'common',
     b: 'bundle',
   },
@@ -65,6 +67,7 @@ function read(file) {
 
 function load(fromDir) {
   return glob.sync('**/*.{yml,yaml,json}', { cwd: fromDir })
+    .filter(x => !argv.flags.ignore || !x.includes(argv.flags.ignore))
     .map(x => path.join(fromDir, x))
     .map(x => {
       const schema = x.indexOf('.json') !== -1
@@ -141,25 +144,19 @@ Promise.resolve()
 
     if (argv.flags.json) {
       Object.keys(schemas).forEach(x => {
-        write(`${utils.safe(x, '-')}.json`, () => JSON.stringify(schemas[x], null, 2));
+        write(`${x}.json`, () => JSON.stringify(schemas[x], null, 2));
       });
     }
 
     if (repository.models) {
-      const names = [];
-
       repository.models.forEach(x => {
-        const name = utils.safe(x.modelId, '-');
-
-        output(name, x, true);
-
-        names.push(name);
+        output(utils.safe(x.modelId, '-'), x, true);
       });
 
       if (argv.flags.json) {
         write(`${common}.json`, () => JSON.stringify(references, null, 2));
         write(`${common}.js`, () => `module.exports = [\n${
-          names.map(x => `  require('./${x}.json'),\n`).join('')
+          Object.keys(schemas).map(x => `  require('./${x}.json'),\n`).join('')
         }].concat(require('./${common}.json'));\n`);
       }
     }
