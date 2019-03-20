@@ -6,6 +6,7 @@ JSON-Schema To ≤GraphQL|Protobuf|Code≥.™
   -w, --cwd       Working directory for all sources (default 'process.cwd()')
   -s, --src       List schemas from this directory (default 'models')
   -d, --dest      Output definitions to this directory (default 'generated')
+  -p, --prune     Remove generated files before writing new ones
 
   -k, --pkg       Package name for generated services (--protobuf only)
   -r, --refs      External imports for generated services (--protobuf only)
@@ -32,6 +33,7 @@ const argv = require('wargs')(process.argv.slice(2), {
     d: 'dest',
     r: 'refs',
     t: 'types',
+    p: 'prune',
     i: 'ignore',
     c: 'common',
     b: 'bundle',
@@ -106,6 +108,16 @@ function run(desc, task) {
   }
 }
 
+function clear(pattern, baseDir) {
+  if (argv.flags.prune) {
+    process.stderr.write(`Removing ${pattern} files from ./${path.relative(process.cwd(), baseDir)}\n`);
+
+    glob.sync(pattern, { cwd: baseDir }).forEach(x => {
+      fs.unlinkSync(path.join(baseDir, x));
+    });
+  }
+}
+
 function write(file, callback) {
   const destFile = path.resolve(dest, file);
 
@@ -142,7 +154,17 @@ Promise.resolve()
       fs.mkdirSync(dest);
     }
 
+    if (argv.flags.protobuf) {
+      clear('*.proto', dest);
+    }
+
+    if (argv.flags.graphql) {
+      clear('*.gql', dest);
+    }
+
     if (argv.flags.json) {
+      clear('*.{js,json}', dest);
+
       Object.keys(schemas).forEach(x => {
         write(`${x}.json`, () => JSON.stringify(schemas[x], null, 2));
       });
