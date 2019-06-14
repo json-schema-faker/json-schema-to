@@ -8,7 +8,6 @@ const grpc = require('grpc');
 const grpcloader = require('@grpc/proto-loader');
 
 const is = require('is-my-json-valid');
-const jsf = require('json-schema-faker');
 
 const utils = require('../lib/utils');
 
@@ -37,7 +36,6 @@ module.exports = {
   loadPackageDefinition: grpc.loadPackageDefinition,
   ServerCredentials: grpc.ServerCredentials,
   credentials: grpc.credentials,
-  jsf,
   is,
   trim: utils.trim,
   getModels,
