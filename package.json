@@ -35,7 +35,7 @@
   "license": "MIT",
   "dependencies": {
     "glob": "^7.1.2",
-    "json-schema-ref-parser": "^6.0.1",
+    "json-schema-ref-parser": "^7.0.1",
     "wargs": "^0.8.1",
     "yamljs": "^0.3.0"
   },
