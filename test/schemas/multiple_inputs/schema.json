@@ -1,0 +1,42 @@
+{
+  "id": "Test",
+  "type": "object",
+  "properties": {
+    "value": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "value"
+  ],
+  "definitions": {
+    "Foo": {
+      "type": "number"
+    },
+    "Bar": {
+      "type": "object",
+      "properties": {
+        "test": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "test"
+      ]
+    }
+  },
+  "service": {
+    "pkg": "test",
+    "calls": [
+      {
+        "get": "multi",
+        "resp": "Test",
+        "input": {
+          "foo": "Foo",
+          "bar": "Bar"
+        },
+        "required": ["Foo"]
+      }
+    ]
+  }
+}

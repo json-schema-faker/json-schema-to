@@ -1,0 +1,15 @@
+syntax = "proto3";
+package test;
+service TestService {
+  rpc multi(foo_bar_input) returns(Test);
+}
+message foo_bar_input {
+  required double foo = 1;
+  Bar bar = 2;
+}
+message Bar {
+  required bool test = 1;
+}
+message Test {
+  required string value = 1;
+}

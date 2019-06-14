@@ -1,0 +1,9 @@
+extend type Query {
+  multi(foo: Float!, bar: Bar = {}): Test
+}
+input Bar {
+  test: Boolean!
+}
+type Test {
+  value: String!
+}
