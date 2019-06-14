@@ -13,7 +13,7 @@ const pkgInfo = {
 const definitions = {
   models: {},
   enums: [],
-  deps: {},
+  deps: [],
   refs: {},
 };
 

@@ -1,0 +1,11 @@
+syntax = "proto3";
+package test;
+service RootService {
+  rpc sub(Noop) returns(Root);
+}
+message Root {
+  repeated Leaf items = 1;
+}
+message Leaf {
+  required string name = 1;
+}

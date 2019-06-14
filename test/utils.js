@@ -23,7 +23,7 @@ function getModels(definitions) {
 function getOptions(models, definitions) {
   return {
     models,
-    deps: {},
+    deps: [],
     enums: definitions.enums,
   };
 }
