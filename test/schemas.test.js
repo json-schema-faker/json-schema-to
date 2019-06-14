@@ -12,7 +12,7 @@ describe('Schema validation', () => {
   const schemasDir = `${__dirname}/schemas`;
 
   function readFile(filePath) {
-    return fs.readFileSync(filePath).toString();
+    return fs.existsSync(filePath) ? fs.readFileSync(filePath).toString() : '';
   }
 
   function readJSON(filePath) {
