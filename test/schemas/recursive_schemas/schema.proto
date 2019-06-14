@@ -1,0 +1,9 @@
+syntax = "proto3";
+package test;
+service SelfService {
+  rpc re(Noop) returns(Self);
+}
+message Self {
+  required string name = 1;
+  repeated Self children = 2;
+}

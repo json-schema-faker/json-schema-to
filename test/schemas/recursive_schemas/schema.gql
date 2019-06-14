@@ -1,0 +1,7 @@
+extend type Query {
+  re: Self
+}
+type Self {
+  name: String!
+  children: [Self]!
+}

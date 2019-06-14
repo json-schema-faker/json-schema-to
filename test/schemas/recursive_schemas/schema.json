@@ -1,0 +1,25 @@
+{
+  "id": "Self",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "children": {
+      "type": "array",
+      "items": {
+        "$ref": "#"
+      }
+    }
+  },
+  "required": [
+    "name",
+    "children"
+  ],
+  "service": {
+    "pkg": "test",
+    "calls": [
+      { "get": "re", "resp": "Self" }
+    ]
+  }
+}
