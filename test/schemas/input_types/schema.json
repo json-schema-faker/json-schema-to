@@ -1,0 +1,34 @@
+{
+  "id": "Test",
+  "service": {
+    "calls": [
+      {
+        "get": "someStuff",
+        "resp": "BazType",
+        "input": {
+          "foo": "FooType",
+          "bar": "BarType"
+        }
+      }
+    ]
+  },
+  "definitions": {
+    "FooType": {
+      "type": "string"
+    },
+    "BarType": {
+      "type": "boolean"
+    },
+    "BazType": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "value"
+      ]
+    }
+  }
+}

@@ -1,0 +1,6 @@
+extend type Query {
+  someStuff(foo: String = "", bar: Boolean = false): BazType
+}
+type BazType {
+  value: String!
+}

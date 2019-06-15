@@ -1,0 +1,12 @@
+syntax = "proto3";
+package api;
+service TestService {
+  rpc someStuff(foo_bar_input) returns(BazType);
+}
+message foo_bar_input {
+  string foo = 1;
+  bool bar = 2;
+}
+message BazType {
+  required string value = 1;
+}
