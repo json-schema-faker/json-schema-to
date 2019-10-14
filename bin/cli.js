@@ -47,9 +47,11 @@ if (!(argv.flags.json || argv.flags.graphql || argv.flags.protobuf)) {
   process.exit(1);
 }
 
+const is = require('is-my-json-valid');
 const YAML = require('yamljs');
 const glob = require('glob');
 const path = require('path');
+const util = require('util');
 const fs = require('fs');
 
 const utils = require('../lib/utils');
@@ -62,6 +64,10 @@ const refs = (argv.flags.refs || '').split(',').filter(Boolean);
 const types = argv.flags.types ? path.join(cwd, argv.flags.types === true ? 'types' : argv.flags.types) : undefined;
 const params = argv.flags.params || undefined;
 const common = utils.safe(argv.flags.common || 'common', '-');
+
+const validateDefinition = is(require('./dsl').definitions.Definition);
+const validateService = is(require('./dsl').definitions.Service);
+const validateModel = is(require('./dsl').definitions.Model);
 
 function read(file) {
   return fs.readFileSync(file, 'utf8').toString();
@@ -78,6 +84,33 @@ function load(fromDir) {
 
       if (!schema.id) {
         throw new Error(`Missing schema identifier for ./${path.relative(process.cwd(), x)}`);
+      }
+
+      let validator = schema.service && validateService;
+
+      if (schema.definitions && !validator) {
+        validator = validateDefinition;
+      }
+
+      if (schema.properties && !validator) {
+        validator = validateModel;
+      }
+
+      if (!validator(schema)) {
+        process.stderr.write(`Invalid definition ${path.relative(process.cwd(), x)}:\n`);
+        process.stderr.write(`${util.inspect(schema, { colors: true })}\n`);
+
+        validator.errors.forEach(err => {
+          const key = err.field.replace('data.', '');
+
+          process.stderr.write(`- ${err.message}${err.field !== 'data' ? ` (${key})` : ''}\n`);
+
+          if (key) {
+            process.stderr.write(`${util.inspect(utils.prop(schema, key), { colors: true })}\n`);
+          }
+        });
+
+        process.exit(1);
       }
 
       return schema;
