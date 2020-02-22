@@ -42,7 +42,7 @@
     "glob": "^7.1.2",
     "is-my-json-valid": "^2.20.0",
     "json-schema-ref-parser": "^7.0.1",
-    "wargs": "^0.8.1",
+    "wargs": "^0.9.1",
     "yamljs": "^0.3.0"
   },
   "devDependencies": {
@@ -56,8 +56,8 @@
     "graphql-tools": "^4.0.1",
     "grpc": "^1.13.1",
     "lodash": "^4.17.15",
-    "mocha": "^6.1.4",
+    "mocha": "^7.0.1",
     "mock-fs": "^4.5.0",
-    "nyc": "^14.1.1"
+    "nyc": "^15.0.0"
   }
 }
