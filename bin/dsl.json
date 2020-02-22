@@ -63,6 +63,9 @@
                   },
                   "params": {
                     "type": "string"
+                  },
+                  "required": {
+                    "type": "boolean"
                   }
                 }
               }
@@ -77,30 +80,24 @@
           "additionalProperties": false,
           "patternProperties": {
             "[A-Z][a-z0-9]+": {
-              "oneOf": [
-                {
-                  "type": "object",
-                  "properties": {
-                    "properties": {
-                      "type": "object"
-                    }
-                  },
-                  "required": [
-                    "properties"
-                  ]
+              "type": "object",
+              "properties": {
+                "properties": {
+                  "type": "object"
                 },
-                {
-                  "type": "object",
-                  "properties": {
-                    "$ref": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "$ref"
-                  ]
+                "required": {
+                  "type": "array"
+                },
+                "items": {
+                  "type": "object"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "$ref": {
+                  "type": "string"
                 }
-              ]
+              }
             }
           }
         }

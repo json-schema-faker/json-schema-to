@@ -92,22 +92,18 @@ function load(fromDir) {
         validator = validateDefinition;
       }
 
-      if (schema.properties && !validator) {
+      if (!validator) {
         validator = validateModel;
       }
 
       if (!validator(schema)) {
         process.stderr.write(`Invalid definition ${path.relative(process.cwd(), x)}:\n`);
-        process.stderr.write(`${util.inspect(schema, { colors: true })}\n`);
+        process.stderr.write(`${util.inspect(schema, { depth: 10, colors: true })}\n`);
 
         validator.errors.forEach(err => {
           const key = err.field.replace('data.', '');
 
           process.stderr.write(`- ${err.message}${err.field !== 'data' ? ` (${key})` : ''}\n`);
-
-          if (key) {
-            process.stderr.write(`${util.inspect(utils.prop(schema, key), { colors: true })}\n`);
-          }
         });
 
         process.exit(1);
