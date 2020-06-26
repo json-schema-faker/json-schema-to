@@ -206,9 +206,21 @@ Promise.resolve()
 
       if (argv.flags.json) {
         write(`${common}.json`, () => JSON.stringify(references, null, 2));
-        write(`${common}.js`, () => `module.exports = [\n${
-          Object.keys(schemas).map(x => `  require('./${x}.json'),\n`).join('')
-        }].concat(require('./${common}.json'));\n`);
+
+        const groups = {};
+
+        Object.keys(schemas).forEach(schema => {
+          const def = schemas[schema];
+          const key = (def.options && def.options.database) || 'default';
+
+          if (!groups[key]) groups[key] = [];
+          groups[key].push(`  require('./${schema}.json'),\n`);
+        });
+
+        write(`${common}.js`, () => Object.keys(groups).reduce((memo, cur) => {
+          memo.push(`module.exports.${cur} = [\n${groups[cur].join('')}].concat(require('./${common}.json'));\n`);
+          return memo;
+        }, []).join(''));
       }
     }
 
