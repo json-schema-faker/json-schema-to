@@ -12,9 +12,9 @@ JSON-Schema To ≤GraphQL|Protobuf|Code≥.™
   -r, --refs      External imports for generated services (--protobuf only)
 
   -t, --types     Scan for additional schemas, if boolean is given 'types' is used
-  -i, --ignore    Pattern to skip some files, e.g. \`-i sample\` (--json only)
   -c, --common    Filename used for saving common definitions (default 'common')
   -b, --bundle    Generate multiple files instead of a single file as result
+  -i, --ignore    Pattern to skip some files, e.g. \`-i sample\`
 
       --json      Produce JSON as output
       --graphql   Produce GraphQL as output
@@ -26,6 +26,7 @@ Examples:
 `;
 
 const argv = require('wargs')(process.argv.slice(2), {
+  boolean: 'bp',
   alias: {
     w: 'cwd',
     k: 'pkg',
@@ -38,7 +39,6 @@ const argv = require('wargs')(process.argv.slice(2), {
     c: 'common',
     b: 'bundle',
   },
-  boolean: 'bp',
 });
 
 if (!(argv.flags.json || argv.flags.graphql || argv.flags.protobuf)) {
