@@ -23,7 +23,7 @@
     "watch": "npm test -- -w",
     "test": "npm run test:unit --",
     "test:ci": "npm run test:unit:coverage && npm run report --",
-    "test:unit": "NODE_ENV=test _mocha --watch-extensions gql,json,proto --exit --recursive -bR spec 'test/**/*.test.js'",
+    "test:unit": "NODE_ENV=test _mocha --watch-extensions gql,json,proto --exit --colors --recursive -bR spec 'test/**/*.test.js'",
     "test:unit:coverage": "NODE_ENV=test nyc -x '**/test/**' -x '**/*.test.js' -- npm run test:unit",
     "report": "codecov --file=coverage/lcov.info -e TRAVIS_NODE_VERSION"
   },
