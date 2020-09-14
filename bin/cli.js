@@ -219,7 +219,7 @@ Promise.resolve()
       clear('*.{js,json}', dest);
 
       Object.keys(schemas).forEach(x => {
-        write(`${x}.json`, () => JSON.stringify(schemas[x], null, 2));
+        write(`${x}.json`, () => JSON.stringify({ ...schemas[x], service: undefined }, null, 2));
       });
     }
 
