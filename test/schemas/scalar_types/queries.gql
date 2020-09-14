@@ -1,0 +1,8 @@
+query {
+  Model {
+    str
+    int
+    dec
+    bol
+  }
+}

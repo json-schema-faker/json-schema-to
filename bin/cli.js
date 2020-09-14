@@ -16,6 +16,8 @@ JSON-Schema To ≤GraphQL|Protobuf|Code≥.™
   -b, --bundle    Generate multiple files instead of a single file as result
   -i, --ignore    Pattern to skip some files, e.g. \`-i sample\`
 
+  -q, --queries   Save GraphQL queries along with schemas
+
       --json      Produce JSON as output
       --graphql   Produce GraphQL as output
       --protobuf  Produce Protobuf as output
@@ -26,7 +28,7 @@ Examples:
 `;
 
 const argv = require('wargs')(process.argv.slice(2), {
-  boolean: 'bp',
+  boolean: 'bpq',
   alias: {
     w: 'cwd',
     k: 'pkg',
@@ -38,6 +40,7 @@ const argv = require('wargs')(process.argv.slice(2), {
     i: 'ignore',
     c: 'common',
     b: 'bundle',
+    q: 'queries',
   },
 });
 
@@ -158,6 +161,26 @@ function write(file, callback) {
 function output(name, model) {
   if (argv.flags.graphql) {
     write(`${name}.gql`, () => model.graphql);
+
+    if (argv.flags.queries) {
+      const qDir = path.join(dest, 'queries');
+
+      if (!fs.existsSync(qDir)) {
+        fs.mkdirSync(qDir);
+      }
+
+      let index = '';
+      model.queries.forEach(query => {
+        const { key } = query;
+        const name = key.replace(/[A-Z]/g, '_$&').toUpperCase();
+
+        write(`queries/${key}.gql`, () => query.toString());
+
+        index += `export { default as ${name} } from './${key}.gql';\n`;
+      });
+
+      write('queries/index.js', () => index);
+    }
   }
 
   if (argv.flags.protobuf) {

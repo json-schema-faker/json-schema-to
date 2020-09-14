@@ -1,0 +1,11 @@
+query {
+  readValue {
+    prop
+  }
+}
+
+mutation {
+  updateValue {
+    value
+  }
+}

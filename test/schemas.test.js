@@ -12,7 +12,7 @@ describe('Schema validation', () => {
   const schemasDir = `${__dirname}/schemas`;
 
   function readFile(filePath) {
-    return fs.existsSync(filePath) ? fs.readFileSync(filePath).toString() : '';
+    return fs.existsSync(filePath) ? fs.readFileSync(filePath).toString() : null;
   }
 
   function readJSON(filePath) {
@@ -22,25 +22,28 @@ describe('Schema validation', () => {
   fs.readdirSync(schemasDir)
     .filter(x => x.indexOf('.') === -1)
     .forEach(name => {
-      const schemaId = `${schemasDir}/${name}/schema`;
+      const schemaId = `${schemasDir}/${name}`;
 
       it(name.replace(/[^a-z\d]+/g, ' ').trim(), () => {
-        const data = readJSON(`${schemaId}.json`);
+        const data = readJSON(`${schemaId}/schema.json`);
         const service = new Service(data);
 
         return Promise.resolve()
           .then(() => service.load())
           .then(() => {
-            const gqlFile = `${schemaId}.gql`;
-            const protoFile = `${schemaId}.proto`;
+            const gqlFile = `${schemaId}/schema.gql`;
+            const gqlQFile = `${schemaId}/queries.gql`;
+            const protoFile = `${schemaId}/schema.proto`;
 
             if (data.debug) {
+              console.log(service.queries.join('\n'));
               console.log(service.graphql);
               console.log(service.protobuf);
             }
 
-            expect(service.graphql.trim()).to.eql(readFile(gqlFile).trim());
-            expect(service.protobuf.trim()).to.eql(readFile(protoFile).trim());
+            expect(service.queries.join('\n')).to.eql(readFile(gqlQFile));
+            expect(service.graphql).to.eql(readFile(gqlFile));
+            expect(service.protobuf).to.eql(readFile(protoFile));
 
             try {
               _.makeExecutableSchema({

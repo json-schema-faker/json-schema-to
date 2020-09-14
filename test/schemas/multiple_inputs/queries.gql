@@ -1,0 +1,11 @@
+query(
+  $foo: Float!,
+  $bar: Boolean,
+) {
+  multi(input: {
+    foo: $foo,
+    bar: $bar,
+  }) {
+    value
+  }
+}
