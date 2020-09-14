@@ -170,13 +170,14 @@ function output(name, model) {
       }
 
       let index = '';
-      model.queries.forEach(query => {
-        const { key } = query;
-        const name = key.replace(/[A-Z]/g, '_$&').toUpperCase();
+      model.queries.forEach(sub => {
+        if (sub.query === false) return;
 
-        write(`queries/${key}.gql`, () => query.toString());
+        const name = sub.key.replace(/[A-Z]/g, '_$&').toUpperCase();
 
-        index += `export { default as ${name} } from './${key}.gql';\n`;
+        write(`queries/${sub.key}.gql`, () => sub.toString());
+
+        index += `export { default as ${name} } from './${sub.key}.gql';\n`;
       });
 
       write('queries/index.js', () => index);

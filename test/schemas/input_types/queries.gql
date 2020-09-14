@@ -1,11 +1,5 @@
-query(
-  $foo: String,
-  $bar: Boolean,
-) {
-  someStuff(input: {
-    foo: $foo,
-    bar: $bar,
-  }) {
+query {
+  someStuff {
     value
   }
 }

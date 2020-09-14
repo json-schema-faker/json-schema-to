@@ -3,4 +3,5 @@ extend type Query {
 }
 type BazType {
   value: String!
+  other: Float
 }

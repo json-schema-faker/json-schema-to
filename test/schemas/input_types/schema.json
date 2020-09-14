@@ -5,6 +5,7 @@
       {
         "get": "someStuff",
         "resp": "BazType",
+        "query": null,
         "input": {
           "foo": "FooType",
           "bar": "BarType"
@@ -24,6 +25,10 @@
       "properties": {
         "value": {
           "type": "string"
+        },
+        "other": {
+          "type": "number",
+          "query": false
         }
       },
       "required": [

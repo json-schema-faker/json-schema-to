@@ -9,4 +9,5 @@ message foo_bar_input {
 }
 message BazType {
   required string value = 1;
+  double other = 2;
 }

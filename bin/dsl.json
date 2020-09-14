@@ -45,6 +45,9 @@
                   "resp": {
                     "type": "string"
                   },
+                  "query": {
+                    "type": ["boolean", "null"]
+                  },
                   "input": {
                     "oneOf": [
                       {
