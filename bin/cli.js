@@ -90,17 +90,20 @@ function load(fromDir) {
       }
 
       let validator = schema.service && validateService;
+      let kind = 'service';
 
       if (schema.definitions && !validator) {
         validator = validateDefinition;
+        kind = 'definition';
       }
 
       if (!validator) {
         validator = validateModel;
+        kind = 'model';
       }
 
       if (!validator(schema)) {
-        process.stderr.write(`Invalid definition ${path.relative(process.cwd(), x)}:\n`);
+        process.stderr.write(`Invalid ${kind} ${path.relative(process.cwd(), x)}:\n`);
         process.stderr.write(`${util.inspect(schema, { depth: 10, colors: true })}\n`);
 
         validator.errors.forEach(err => {
