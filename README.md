@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/json-schema-faker/json-schema-to.svg?branch=master)](https://travis-ci.org/json-schema-faker/json-schema-to)
 [![Build status](https://github.com/json-schema-faker/json-schema-to/workflows/build/badge.svg)](https://github.com/json-schema-faker/json-schema-to/actions)
 [![NPM version](https://badge.fury.io/js/json-schema-to.svg)](http://badge.fury.io/js/json-schema-to)
 [![Coverage Status](https://codecov.io/github/json-schema-faker/json-schema-to/coverage.svg?branch=master)](https://codecov.io/github/json-schema-faker/json-schema-to?branch=master)
