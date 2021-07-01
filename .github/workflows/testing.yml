@@ -15,4 +15,6 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
       - run: npm ci
-      - run: npm run test:ci
+      - run: |
+          export CODECOV_TOKEN=${{ secrets.CODECOV_TOKEN }}
+          npm run test:ci
