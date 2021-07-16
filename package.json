@@ -42,7 +42,7 @@
   "dependencies": {
     "glob": "^7.1.2",
     "is-my-json-valid": "^2.20.0",
-    "json-schema-ref-parser": "^7.0.1",
+    "json-schema-ref-parser": "^7.1.4",
     "wargs": "^0.9.1",
     "yamljs": "^0.3.0"
   },
@@ -60,7 +60,7 @@
     "lodash": ">=4.17.19",
     "minimist": ">=0.2.1",
     "mocha": "^7.2.0",
-    "mock-fs": "^4.5.0",
+    "mock-fs": "^4.14.0",
     "node-fetch": ">=2.6.1",
     "nyc": "^15.0.0",
     "yargs-parser": ">=13.1.2"
