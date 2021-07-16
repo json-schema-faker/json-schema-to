@@ -268,6 +268,7 @@ Promise.resolve()
         });
 
         _refs.forEach(([ref, schema]) => {
+          schema.id = schema.id || ref;
           tasks.push(ts.compile(schema, ref, {
             bannerComment: '/* tslint:disable */\n/**\n* This file was automatically generated, do not modify.\n*/',
           }).then(code => {
