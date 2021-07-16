@@ -3,24 +3,25 @@
 const USAGE_INFO = `
 JSON-Schema To ≤GraphQL|Protobuf|Code≥.™
 
-  -w, --cwd       Working directory for all sources (default 'process.cwd()')
-  -s, --src       List schemas from this directory (default 'models')
-  -d, --dest      Output definitions to this directory (default 'generated')
-  -p, --prune     Remove generated files before writing new ones
+  -w, --cwd         Working directory for all sources (default 'process.cwd()')
+  -s, --src         List schemas from this directory (default 'models')
+  -d, --dest        Output definitions to this directory (default 'generated')
+  -p, --prune       Remove generated files before writing new ones
 
-  -k, --pkg       Package name for generated services (--protobuf only)
-  -r, --refs      External imports for generated services (--protobuf only)
+  -k, --pkg         Package name for generated services (--protobuf only)
+  -r, --refs        External imports for generated services (--protobuf only)
 
-  -t, --types     Scan for additional schemas, if boolean is given 'types' is used
-  -c, --common    Filename used for saving common definitions (default 'common')
-  -b, --bundle    Generate multiple files instead of a single file as result
-  -i, --ignore    Pattern to skip some files, e.g. \`-i sample\`
+  -t, --types       Scan for additional schemas, if boolean is given 'types' is used
+  -c, --common      Filename used for saving common definitions (default 'common')
+  -b, --bundle      Generate multiple files instead of a single file as result
+  -i, --ignore      Pattern to skip some files, e.g. \`-i sample\`
 
-  -q, --queries   Save GraphQL queries along with schemas
+  -q, --queries     Save GraphQL queries along with schemas
 
-      --json      Produce JSON as output
-      --graphql   Produce GraphQL as output
-      --protobuf  Produce Protobuf as output
+      --json        Produce JSON as output
+      --graphql     Produce GraphQL as output
+      --protobuf    Produce Protobuf as output
+      --typescript  Produce TypeScript types as output
 
 Examples:
   json-schema-to -tk my-app -w src/schema --json
@@ -44,18 +45,19 @@ const argv = require('wargs')(process.argv.slice(2), {
   },
 });
 
-if (!(argv.flags.json || argv.flags.graphql || argv.flags.protobuf)) {
+if (!(argv.flags.json || argv.flags.graphql || argv.flags.protobuf || argv.flags.typescript)) {
   process.stderr.write(`${USAGE_INFO}\n`);
-  process.stderr.write('Unknown output, please give --json, --graphql or --protobuf\n');
+  process.stderr.write('Unknown output, please give --json, --graphql, --protobuf or --typescript\n');
   process.exit(1);
 }
 
 const is = require('is-my-json-valid');
+const ts = require('json-schema-to-typescript');
 const YAML = require('yamljs');
 const glob = require('glob');
 const path = require('path');
 const util = require('util');
-const fs = require('fs');
+const fs = require('fs-extra');
 
 const utils = require('../lib/utils');
 
@@ -157,7 +159,7 @@ function write(file, callback) {
   const destFile = path.resolve(dest, file);
 
   run(`write ./${path.relative(process.cwd(), destFile)}`, () => {
-    fs.writeFileSync(destFile, callback());
+    fs.outputFileSync(destFile, callback());
   });
 }
 
@@ -166,21 +168,15 @@ function output(name, model) {
     write(`${name}.gql`, () => model.graphql);
 
     if (argv.flags.queries) {
-      const qDir = path.join(dest, 'queries');
-
-      if (!fs.existsSync(qDir)) {
-        fs.mkdirSync(qDir);
-      }
-
       let index = '';
       model.queries.forEach(sub => {
         if (sub.query === false) return;
 
-        const name = sub.key.replace(/[A-Z]/g, '_$&').toUpperCase();
+        const _name = sub.key.replace(/[A-Z]/g, '_$&').toUpperCase();
 
         write(`queries/${sub.key}.gql`, () => sub.toString());
 
-        index += `export { default as ${name} } from './${sub.key}.gql';\n`;
+        index += `export { default as ${_name} } from './${sub.key}.gql';\n`;
       });
 
       write('queries/index.js', () => index);
@@ -206,8 +202,8 @@ Promise.resolve()
     return Service.merge({ pkg, refs, params }, models);
   })
   .then(repository => {
-    if (!fs.existsSync(dest)) {
-      fs.mkdirSync(dest);
+    if (argv.flags.typescript) {
+      clear('types/*.ts', dest);
     }
 
     if (argv.flags.protobuf) {
@@ -249,10 +245,47 @@ Promise.resolve()
           return memo;
         }, []).join(''));
       }
-    }
 
-    output(common, repository);
+      if (argv.flags.typescript) {
+        const tasks = [];
+        const _refs = [];
+        const _types = [];
+
+        repository.models.forEach(x => {
+          _refs.push([x.modelId, x.$schema]);
+
+          if (x.$schema.definitions) {
+            Object.keys(x.$schema.definitions).forEach(def => {
+              _refs.push([def, x.$schema.definitions[def]]);
+            });
+          }
+        });
+
+        references.forEach(ref => {
+          Object.keys(ref.definitions).forEach(def => {
+            _refs.push([def, ref.definitions[def]]);
+          });
+        });
+
+        _refs.forEach(([ref, schema]) => {
+          tasks.push(ts.compile(schema, ref, {
+            bannerComment: '/* tslint:disable */\n/**\n* This file was automatically generated, do not modify.\n*/',
+          }).then(code => {
+            _types.push(`export * from './${ref}';\n`);
+            write(`types/${ref}.ts`, () => code);
+          }));
+        });
+
+        return Promise.all(tasks)
+          .then(() => {
+            write('types/index.ts', () => _types.join(''));
+          })
+          .then(() => repository);
+      }
+    }
+    return repository;
   })
+  .then(repository => output(common, repository))
   .catch(e => {
     process.stderr.write(`${e.stack}\n`);
     process.exit(1);

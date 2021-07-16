@@ -72,3 +72,26 @@ write ./generated/common.proto
 Now you can use those sources in your application.
 
 > Use `--help` to display more usage info from the CLI
+
+### TypeScript
+
+Thanks to [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript) we're able to produce `.ts` files as well,
+their output are well-formed types and interfaces that are exported together from a single entry-point.
+
+It's encouraged to create an additional file to re-export such types, e.g.
+
+```ts
+export * from './generated/types/index';
+```
+
+This way you can refer to them on later scripts:
+
+```ts
+import { User, Success } from './types';
+
+const ok: Success = { success: true };
+const user: User = { email: 'a@b.c', role: 'USER' };
+
+console.log(ok);
+console.log(user);
+```
