@@ -74,6 +74,8 @@ const validateDefinition = is(require('./dsl').definitions.Definition);
 const validateService = is(require('./dsl').definitions.Service);
 const validateModel = is(require('./dsl').definitions.Model);
 
+const RE_EXPORTED_TYPES = /export (?:interface \w+ \{[^{}]*?\}|type [^;]+?;)/g;
+
 function read(file) {
   return fs.readFileSync(file, 'utf8').toString();
 }
@@ -203,7 +205,7 @@ Promise.resolve()
   })
   .then(repository => {
     if (argv.flags.typescript) {
-      clear('types/*.ts', dest);
+      clear('*.d.ts', dest);
     }
 
     if (argv.flags.protobuf) {
@@ -270,16 +272,18 @@ Promise.resolve()
         _refs.forEach(([ref, schema]) => {
           schema.id = schema.id || ref;
           tasks.push(ts.compile(schema, ref, {
-            bannerComment: '/* tslint:disable */\n/**\n* This file was automatically generated, do not modify.\n*/',
+            bannerComment: '',
           }).then(code => {
-            _types.push(`export * from './${ref}';\n`);
-            write(`types/${ref}.ts`, () => code);
+            _types.push(...code.match(RE_EXPORTED_TYPES));
           }));
         });
 
         return Promise.all(tasks)
           .then(() => {
-            write('types/index.ts', () => _types.join(''));
+            const banner = '/* tslint:disable */\n/**\n* This file was automatically generated, do not modify.\n*/';
+            const code = [...new Set(_types)].join('\n');
+
+            write('types.d.ts', () => `${banner}\n${code}`);
           })
           .then(() => repository);
       }
