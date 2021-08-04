@@ -281,7 +281,13 @@ Promise.resolve()
         return Promise.all(tasks)
           .then(() => {
             const banner = '/* tslint:disable */\n/**\n* This file was automatically generated, do not modify.\n*/';
-            const code = [...new Set(_types)].join('\n');
+            const code = [...new Set(_types)].sort((a, b) => {
+              if (a.includes(' interface ')) return 1;
+              if (b.includes(' interface ')) return 0;
+              if (a.includes(' type ')) return -1;
+              if (b.includes(' type ')) return 0;
+              return 0;
+            }).join('\n');
 
             write('types.d.ts', () => `${banner}\n${code}`);
           })
