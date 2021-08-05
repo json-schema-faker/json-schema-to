@@ -96,7 +96,7 @@ function load(fromDir) {
       let validator = schema.service && validateService;
       let kind = 'service';
 
-      if (schema.definitions && !validator) {
+      if (schema.definitions && !schema.properties && !validator) {
         validator = validateDefinition;
         kind = 'definition';
       }
@@ -191,7 +191,7 @@ function output(name, model) {
 }
 
 Promise.resolve()
-  .then(() => Service.load(src, schemas, references))
+  .then(() => Service.load(src, utils.copy(schemas), references))
   .then(models => {
     if (!models.length) {
       throw new Error(`Empty bundle, ${Object.keys(schemas).length} schemas found in ./${path.relative(process.cwd(), src)}`);
@@ -225,6 +225,10 @@ Promise.resolve()
     }
 
     if (repository.models) {
+      const tasks = [];
+      const _refs = {};
+      const _types = [];
+
       repository.models.forEach(x => {
         output(utils.safe(x.modelId, '-'), x, true);
       });
@@ -240,7 +244,56 @@ Promise.resolve()
 
           if (!groups[key]) groups[key] = [];
           groups[key].push(`  require('./${schema}.json'),\n`);
+
+          if (argv.flags.typescript) {
+            _refs[def.id] = def;
+
+            if (def.definitions) {
+              Object.assign(_refs, def.definitions);
+            }
+
+            references.forEach(ref => {
+              Object.assign(_refs, ref.definitions);
+            });
+          }
         });
+
+        if (argv.flags.typescript) {
+          const fixedRefs = {
+            order: 1,
+            canRead: true,
+            read: (file, callback) => {
+              const rel = path.relative(process.cwd(), file.url);
+              const ref = _refs[rel] || references.find(x => x.id === rel);
+
+              if (!ref) {
+                callback(new Error(`Missing '${rel}' definition (${file.url})`));
+              } else {
+                callback(null, ref);
+              }
+            },
+          };
+
+          const _keys = Object.keys(_refs);
+          const _regex = new RegExp(`(${_keys.join('|')})\\d+`, 'g');
+
+          _keys.forEach(ref => {
+            const schema = _refs[ref];
+
+            schema.id = schema.id || ref;
+            tasks.push(ts.compile(schema, ref, {
+              bannerComment: '',
+              $refOptions: {
+                resolve: {
+                  fixedRefs,
+                  file: false,
+                },
+              },
+            }).then(code => {
+              _types.push(...code.replace(_regex, '$1').match(RE_EXPORTED_TYPES));
+            }));
+          });
+        }
 
         write(`${common}.js`, () => Object.keys(groups).reduce((memo, cur) => {
           memo.push(`module.exports.${cur} = [\n${groups[cur].join('')}].concat(require('./${common}.json'));\n`);
@@ -249,35 +302,6 @@ Promise.resolve()
       }
 
       if (argv.flags.typescript) {
-        const tasks = [];
-        const _refs = [];
-        const _types = [];
-
-        repository.models.forEach(x => {
-          _refs.push([x.modelId, x.$schema]);
-
-          if (x.$schema.definitions) {
-            Object.keys(x.$schema.definitions).forEach(def => {
-              _refs.push([def, x.$schema.definitions[def]]);
-            });
-          }
-        });
-
-        references.forEach(ref => {
-          Object.keys(ref.definitions).forEach(def => {
-            _refs.push([def, ref.definitions[def]]);
-          });
-        });
-
-        _refs.forEach(([ref, schema]) => {
-          schema.id = schema.id || ref;
-          tasks.push(ts.compile(schema, ref, {
-            bannerComment: '',
-          }).then(code => {
-            _types.push(...code.match(RE_EXPORTED_TYPES));
-          }));
-        });
-
         return Promise.all(tasks)
           .then(() => {
             const banner = '/* tslint:disable */\n/**\n* This file was automatically generated, do not modify.\n*/';
