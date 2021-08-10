@@ -289,6 +289,13 @@ Promise.resolve()
                   file: false,
                 },
               },
+              style: {
+                semi: true,
+                singleQuote: true,
+                trailingComma: 'es5',
+                useTabs: false,
+                tabWidth: 2,
+              },
             }).then(code => {
               _types.push(...code.replace(_regex, '$1').match(RE_EXPORTED_TYPES));
             }));
@@ -304,7 +311,7 @@ Promise.resolve()
       if (argv.flags.typescript) {
         return Promise.all(tasks)
           .then(() => {
-            const banner = '/* tslint:disable */\n/**\n* This file was automatically generated, do not modify.\n*/';
+            const banner = '// This file was automatically generated, do not modify.';
             const code = [...new Set(_types)].sort((a, b) => {
               if (a.includes(' interface ')) return 1;
               if (b.includes(' interface ')) return 0;
