@@ -1,11 +1,14 @@
 extend type Query {
   fromValue: WithEnumType
 }
-type WithEnumType {
-  role: WithEnumType_role_1
-}
-enum WithEnumType_role_1 {
+enum WithEnumTypeRole {
   Ce
   Two
   Tres
+}
+type Model {
+  noop: Int
+}
+type WithEnumType {
+  role: WithEnumTypeRole
 }

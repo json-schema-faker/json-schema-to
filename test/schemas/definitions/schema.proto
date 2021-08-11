@@ -4,15 +4,15 @@ service ModelService {
   rpc readValue(Noop) returns(FromId);
   rpc updateValue(Noop) returns(FromRef);
 }
-message FromId {
-  required To data = 1;
-}
 message FromRef {
   repeated Target data = 1;
 }
-message To {
-  required string prop = 1;
+message Model {
+  int32 noop = 1;
 }
 message Target {
   double value = 1;
+}
+message FromId {
+  required string prop = 1;
 }

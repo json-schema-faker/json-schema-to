@@ -1,9 +1,9 @@
 syntax = "proto3";
-package api;
+package API;
 service TestService {
-  rpc someStuff(foo_bar_input) returns(BazType);
+  rpc someStuff(SomeStuffInput) returns(BazType);
 }
-message foo_bar_input {
+message SomeStuffInput {
   string foo = 1;
   bool bar = 2;
 }

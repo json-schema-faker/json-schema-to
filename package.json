@@ -23,7 +23,7 @@
     "watch": "npm test -- -w",
     "test": "npm run test:unit --",
     "test:ci": "npm run test:unit:coverage && npm run report -- -r ${LCOV_OUTPUT:-lcov}",
-    "test:unit": "NODE_ENV=test _mocha --watch-extensions gql,json,proto --exit --colors --recursive -bR spec 'test/**/*.test.js'",
+    "test:unit": "NODE_ENV=test _mocha --exit --colors --watch-ignore 'test/generated/**' -bR spec 'test/*.test.js'",
     "test:unit:coverage": "NODE_ENV=test nyc -x '**/test/**' -x '**/*.test.js' -- npm run test:unit",
     "codecov": "codecov --file=coverage/lcov.info -e TRAVIS_NODE_VERSION",
     "report": "nyc report"
@@ -43,8 +43,6 @@
     "fs-extra": "^10.0.0",
     "glob": "^7.1.2",
     "is-my-json-valid": "^2.20.0",
-    "json-schema-ref-parser": "^7.1.4",
-    "json-schema-to-typescript": "^10.1.4",
     "wargs": "^0.9.1",
     "yamljs": "^0.3.0"
   },

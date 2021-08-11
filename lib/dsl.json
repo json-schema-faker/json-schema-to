@@ -111,25 +111,38 @@
       ]
     },
     "Model": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "pattern": "[A-Z][a-z0-9]+"
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "[A-Z][a-z0-9]+"
+            },
+            "options": {
+              "type": "object"
+            },
+            "properties": {
+              "type": "object"
+            },
+            "required": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "id",
+            "properties"
+          ]
         },
-        "options": {
-          "type": "object"
-        },
-        "properties": {
-          "type": "object"
-        },
-        "required": {
-          "type": "array"
+        {
+          "type": "object",
+          "properties": {
+            "$ref": {
+              "type": "string"
+            }
+          },
+          "required": ["$ref"]
         }
-      },
-      "required": [
-        "id",
-        "properties"
       ]
     }
   }

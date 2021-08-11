@@ -50,15 +50,11 @@ if (!(argv.flags.json || argv.flags.graphql || argv.flags.protobuf || argv.flags
   process.stderr.write('Unknown output, please give --json, --graphql, --protobuf or --typescript\n');
   process.exit(1);
 }
-
-const is = require('is-my-json-valid');
-const ts = require('json-schema-to-typescript');
-const YAML = require('yamljs');
 const glob = require('glob');
 const path = require('path');
-const util = require('util');
 const fs = require('fs-extra');
 
+const load = require('../lib')(argv.flags);
 const utils = require('../lib/utils');
 
 const cwd = path.resolve(argv.flags.cwd || '.');
@@ -67,61 +63,7 @@ const src = path.join(cwd, argv.flags.src || 'models');
 const dest = path.join(cwd, argv.flags.dest || 'generated');
 const refs = (argv.flags.refs || '').split(',').filter(Boolean);
 const types = argv.flags.types ? path.join(cwd, argv.flags.types === true ? 'types' : argv.flags.types) : undefined;
-const params = argv.flags.params || undefined;
 const common = utils.safe(argv.flags.common || 'common', '-');
-
-const validateDefinition = is(require('./dsl').definitions.Definition);
-const validateService = is(require('./dsl').definitions.Service);
-const validateModel = is(require('./dsl').definitions.Model);
-
-const RE_EXPORTED_TYPES = /export (?:interface \w+ \{[^{}]*?\}|type [^;]+?;)/g;
-
-function read(file) {
-  return fs.readFileSync(file, 'utf8').toString();
-}
-
-function load(fromDir) {
-  return glob.sync('**/*.{yml,yaml,json}', { cwd: fromDir })
-    .filter(x => !argv.flags.ignore || !x.includes(argv.flags.ignore))
-    .map(x => path.join(fromDir, x))
-    .map(x => {
-      const schema = x.indexOf('.json') !== -1
-        ? JSON.parse(read(x))
-        : YAML.parse(read(x));
-
-      if (!schema.id) {
-        throw new Error(`Missing schema identifier for ./${path.relative(process.cwd(), x)}`);
-      }
-
-      let validator = schema.service && validateService;
-      let kind = 'service';
-
-      if (schema.definitions && !schema.properties && !validator) {
-        validator = validateDefinition;
-        kind = 'definition';
-      }
-
-      if (!validator) {
-        validator = validateModel;
-        kind = 'model';
-      }
-
-      if (!validator(schema)) {
-        process.stderr.write(`Invalid ${kind} ${path.relative(process.cwd(), x)}:\n`);
-        process.stderr.write(`${util.inspect(schema, { depth: 10, colors: true })}\n`);
-
-        validator.errors.forEach(err => {
-          const key = err.field.replace('data.', '');
-
-          process.stderr.write(`- ${err.message}${err.field !== 'data' ? ` (${key})` : ''}\n`);
-        });
-
-        process.exit(1);
-      }
-
-      return schema;
-    });
-}
 
 const schemas = load(src).reduce((prev, cur) => {
   prev[cur.id] = prev[cur.id] || {};
@@ -135,14 +77,14 @@ const references = types ? load(types) : [];
 
 const Service = require('../lib/service');
 
-function run(desc, task) {
-  process.stdout.write(`\r${desc}`);
+function run(id, task) {
+  process.stdout.write(`\r\x1b[36mwrite\x1b[0m ${id}\x1b[K`);
 
   try {
     task();
     process.stdout.write('\n');
   } catch (e) {
-    process.stderr.write(` ... FAILED\n  ${e.stack}\n`);
+    process.stderr.write(`\r\x1b[31m${e.stack}\x1b[0m\n`);
     process.exit(1);
   }
 }
@@ -160,23 +102,23 @@ function clear(pattern, baseDir) {
 function write(file, callback) {
   const destFile = path.resolve(dest, file);
 
-  run(`write ./${path.relative(process.cwd(), destFile)}`, () => {
+  run(path.relative(process.cwd(), destFile), () => {
     fs.outputFileSync(destFile, callback());
   });
 }
 
-function output(name, model) {
+function output(name, repository) {
   if (argv.flags.graphql) {
-    write(`${name}.gql`, () => model.graphql);
+    write(`${name}.gql`, () => repository.graphql);
 
     if (argv.flags.queries) {
       let index = '';
-      model.queries.forEach(sub => {
+      repository.queries.forEach(sub => {
         if (sub.query === false) return;
 
-        const _name = sub.key.replace(/[A-Z]/g, '_$&').toUpperCase();
-
         write(`queries/${sub.key}.gql`, () => sub.toString());
+
+        const _name = sub.key.replace(/[A-Z]/g, '_$&').toUpperCase();
 
         index += `export { default as ${_name} } from './${sub.key}.gql';\n`;
       });
@@ -186,23 +128,17 @@ function output(name, model) {
   }
 
   if (argv.flags.protobuf) {
-    write(`${name}.proto`, () => model.protobuf);
+    write(`${name}.proto`, () => repository.protobuf);
+  }
+
+  if (argv.flags.typescript) {
+    write(`${name}.d.ts`, () => repository.typescript);
   }
 }
 
 Promise.resolve()
-  .then(() => Service.load(src, utils.copy(schemas), references))
-  .then(models => {
-    if (!models.length) {
-      throw new Error(`Empty bundle, ${Object.keys(schemas).length} schemas found in ./${path.relative(process.cwd(), src)}`);
-    }
-
-    if (argv.flags.bundle || argv.flags.json) {
-      return Service.bundle({ pkg, refs, params }, models);
-    }
-
-    return Service.merge({ pkg, refs, params }, models);
-  })
+  .then(() => Service.load(schemas, references))
+  .then(repository => Service.build({ pkg, refs }, repository))
   .then(repository => {
     if (argv.flags.typescript) {
       clear('*.d.ts', dest);
@@ -214,6 +150,10 @@ Promise.resolve()
 
     if (argv.flags.graphql) {
       clear('*.gql', dest);
+
+      if (argv.flags.queries) {
+        clear('queries/*.*', dest);
+      }
     }
 
     if (argv.flags.json) {
@@ -221,16 +161,6 @@ Promise.resolve()
 
       Object.keys(schemas).forEach(x => {
         write(`${x}.json`, () => JSON.stringify({ ...schemas[x], service: undefined }, null, 2));
-      });
-    }
-
-    if (repository.models) {
-      const tasks = [];
-      const _refs = {};
-      const _types = [];
-
-      repository.models.forEach(x => {
-        output(utils.safe(x.modelId, '-'), x, true);
       });
 
       if (argv.flags.json) {
@@ -244,90 +174,19 @@ Promise.resolve()
 
           if (!groups[key]) groups[key] = [];
           groups[key].push(`  require('./${schema}.json'),\n`);
-
-          if (argv.flags.typescript) {
-            _refs[def.id] = def;
-
-            if (def.definitions) {
-              Object.assign(_refs, def.definitions);
-            }
-
-            references.forEach(ref => {
-              Object.assign(_refs, ref.definitions);
-            });
-          }
         });
 
-        if (argv.flags.typescript) {
-          const fixedRefs = {
-            order: 1,
-            canRead: true,
-            read: (file, callback) => {
-              const rel = path.relative(process.cwd(), file.url);
-              const ref = _refs[rel] || references.find(x => x.id === rel);
-
-              if (!ref) {
-                callback(new Error(`Missing '${rel}' definition (${file.url})`));
-              } else {
-                callback(null, ref);
-              }
-            },
-          };
-
-          const _keys = Object.keys(_refs);
-          const _regex = new RegExp(`(${_keys.join('|')})\\d+`, 'g');
-
-          _keys.forEach(ref => {
-            const schema = _refs[ref];
-
-            schema.id = schema.id || ref;
-            tasks.push(ts.compile(schema, ref, {
-              bannerComment: '',
-              $refOptions: {
-                resolve: {
-                  fixedRefs,
-                  file: false,
-                },
-              },
-              style: {
-                semi: true,
-                singleQuote: true,
-                trailingComma: 'es5',
-                useTabs: false,
-                tabWidth: 2,
-              },
-            }).then(code => {
-              _types.push(...code.replace(_regex, '$1').match(RE_EXPORTED_TYPES));
-            }));
-          });
-        }
-
-        write(`${common}.js`, () => Object.keys(groups).reduce((memo, cur) => {
-          memo.push(`module.exports.${cur} = [\n${groups[cur].join('')}].concat(require('./${common}.json'));\n`);
-          return memo;
-        }, []).join(''));
-      }
-
-      if (argv.flags.typescript) {
-        return Promise.all(tasks)
-          .then(() => {
-            const banner = '// This file was automatically generated, do not modify.';
-            const code = [...new Set(_types)].sort((a, b) => {
-              if (a.includes(' interface ')) return 1;
-              if (b.includes(' interface ')) return 0;
-              if (a.includes(' type ')) return -1;
-              if (b.includes(' type ')) return 0;
-              return 0;
-            }).join('\n');
-
-            write('types.d.ts', () => `${banner}\n${code}`);
-          })
-          .then(() => repository);
+        write(`${common}.js`, () => {
+          return Object.keys(groups).reduce((memo, cur) => {
+            memo.push(`module.exports.${cur} = [\n${groups[cur].join('')}].concat(require('./${common}.json'));\n`);
+            return memo;
+          }, [repository.enums]).join('');
+        });
       }
     }
-    return repository;
+
+    output(common, repository);
   })
-  .then(repository => output(common, repository))
   .catch(e => {
     process.stderr.write(`${e.stack}\n`);
     process.exit(1);

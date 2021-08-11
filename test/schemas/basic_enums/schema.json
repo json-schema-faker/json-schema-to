@@ -7,7 +7,6 @@
   },
   "definitions": {
     "WithEnumType": {
-      "id": "WithEnumType",
       "properties": {
         "role": {
           "enum": [

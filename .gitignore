@@ -3,4 +3,5 @@
 .DS_Store
 .nyc_output
 coverage
+generated
 node_modules

@@ -3,9 +3,9 @@ package test;
 service RootService {
   rpc sub(Noop) returns(Root);
 }
-message Root {
-  repeated Leaf items = 1;
-}
-message Leaf {
+message RootItems {
   required string name = 1;
+}
+message Root {
+  repeated RootItems items = 1;
 }

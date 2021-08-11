@@ -3,11 +3,14 @@ package test;
 service ModelService {
   rpc fromValue(Noop) returns(WithEnumType);
 }
-message WithEnumType {
-  WithEnumType_role_1 role = 1;
-}
-enum WithEnumType_role_1 {
+enum WithEnumTypeRole {
   Ce = 0;
   Two = 1;
   Tres = 2;
+}
+message Model {
+  int32 noop = 1;
+}
+message WithEnumType {
+  WithEnumTypeRole role = 1;
 }

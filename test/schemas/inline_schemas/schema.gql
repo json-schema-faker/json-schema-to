@@ -1,9 +1,9 @@
 extend type Query {
   sub: Root
 }
-type Root {
-  items: [Leaf]!
-}
-type Leaf {
+type RootItems {
   name: String!
+}
+type Root {
+  items: [RootItems]!
 }

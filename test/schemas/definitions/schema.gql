@@ -1,12 +1,15 @@
-extend type Query {
-  readValue: To
-}
 extend type Mutation {
   updateValue: [Target]
 }
-type To {
-  prop: String!
+extend type Query {
+  readValue: FromId
+}
+type Model {
+  noop: Int
 }
 type Target {
   value: Float
+}
+type FromId {
+  prop: String!
 }

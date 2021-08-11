@@ -26,49 +26,48 @@ describe('Schema validation', () => {
 
       it(name.replace(/[^a-z\d]+/g, ' ').trim(), () => {
         const data = readJSON(`${schemaId}/schema.json`);
-        const service = new Service(data);
+        const service = Service.from(data);
 
-        return Promise.resolve()
-          .then(() => service.load())
-          .then(() => {
-            const gqlFile = `${schemaId}/schema.gql`;
-            const gqlQFile = `${schemaId}/queries.gql`;
-            const protoFile = `${schemaId}/schema.proto`;
+        const tsFile = `${schemaId}/schema.ts`;
+        const gqlFile = `${schemaId}/schema.gql`;
+        const gqlQFile = `${schemaId}/queries.gql`;
+        const protoFile = `${schemaId}/schema.proto`;
 
-            if (data.debug) {
-              console.log(service.queries.join('\n'));
-              console.log(service.graphql);
-              console.log(service.protobuf);
-            }
+        if (data.debug) {
+          console.log(service.queries.join('\n'));
+          console.log(service.graphql);
+          console.log(service.protobuf);
+          console.log(service.typescript);
+        }
 
-            expect(service.queries.join('\n')).to.eql(readFile(gqlQFile));
-            expect(service.graphql).to.eql(readFile(gqlFile));
-            expect(service.protobuf).to.eql(readFile(protoFile));
+        expect(service.typescript.trim()).to.eql(readFile(tsFile).trim());
+        expect(service.protobuf.trim()).to.eql(readFile(protoFile).trim());
+        expect(service.graphql.trim()).to.eql(readFile(gqlFile).trim());
+        expect(service.queries.join('\n')).to.eql(readFile(gqlQFile));
 
-            try {
-              _.makeExecutableSchema({
-                typeDefs: [_.trim(`
-                  type Query { dummy: [String] }
-                  type Mutation { dummy: [String] }
-                  schema { query: Query, mutation: Mutation }
-                `), service.graphql],
-              });
-            } catch (e) {
-              throw new Error(`(GraphQL) ${e.message}\n\n${service.graphql}`);
-            }
-
-            _.mockFs({
-              'generated.proto': Buffer.from(`${service.protobuf}\nmessage Noop {}`),
-            });
-
-            try {
-              _.loadPackageDefinition(_.loadSync('generated.proto', {}));
-            } catch (e) {
-              throw new Error(`(Protobuf) ${e.message}\n\n${service.protobuf}`);
-            } finally {
-              _.mockFs.restore();
-            }
+        try {
+          _.makeExecutableSchema({
+            typeDefs: [_.trim(`
+              type Query { dummy: [String] }
+              type Mutation { dummy: [String] }
+              schema { query: Query, mutation: Mutation }
+            `), service.graphql],
           });
+        } catch (e) {
+          throw new Error(`(GraphQL) ${e.message}\n\n${service.graphql}`);
+        }
+
+        _.mockFs({
+          'generated.proto': Buffer.from(`${service.protobuf}\nmessage Noop {}`),
+        });
+
+        try {
+          _.loadPackageDefinition(_.loadSync('generated.proto', {}));
+        } catch (e) {
+          throw new Error(`(Protobuf) ${e.message}\n\n${service.protobuf}`);
+        } finally {
+          _.mockFs.restore();
+        }
       });
     });
 });

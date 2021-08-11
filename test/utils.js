@@ -4,28 +4,13 @@ const gql = require('graphql');
 const gqltools = require('graphql-tools');
 
 const grpc = require('grpc');
+const fs = require('fs-extra');
 
 const grpcloader = require('@grpc/proto-loader');
 
 const is = require('is-my-json-valid');
 
 const utils = require('../lib/utils');
-
-function getModels(definitions) {
-  return Object.keys(definitions.models)
-    .map(def => ({
-      name: def,
-      props: definitions.models[def],
-    }));
-}
-
-function getOptions(models, definitions) {
-  return {
-    models,
-    deps: [],
-    enums: definitions.enums,
-  };
-}
 
 module.exports = {
   makeExecutableSchema: gqltools.makeExecutableSchema,
@@ -36,8 +21,7 @@ module.exports = {
   loadPackageDefinition: grpc.loadPackageDefinition,
   ServerCredentials: grpc.ServerCredentials,
   credentials: grpc.credentials,
+  fs,
   is,
   trim: utils.trim,
-  getModels,
-  getOptions,
 };

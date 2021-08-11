@@ -9,13 +9,16 @@
   },
   {
     "id": "ItemValue",
-    "$ref": "external.schema.json#/definitions/justAString"
+    "$ref": "externalTypes#/definitions/justAString"
   },
   {
     "id": "Value",
     "properties": {
       "example": {
         "type": "number"
+      },
+      "other": {
+        "$ref": "Test#/definitions/TestInput"
       }
     },
     "required": ["example"]

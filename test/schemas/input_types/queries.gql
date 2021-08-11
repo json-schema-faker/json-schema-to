@@ -1,5 +1,6 @@
 query {
   someStuff {
     value
+    other
   }
 }
