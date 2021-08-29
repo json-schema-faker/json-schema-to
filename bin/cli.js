@@ -11,6 +11,7 @@ JSON-Schema To ≤GraphQL|Protobuf|Code≥.™
   -k, --pkg         Package name for generated services (--protobuf only)
   -r, --refs        External imports for generated services (--protobuf only)
 
+  -D, --docs        Turn descriptions as comments on model and field declarations
   -t, --types       Scan for additional schemas, if boolean is given 'types' is used
   -c, --common      Filename used for saving common definitions (default 'common')
   -b, --bundle      Generate multiple files instead of a single file as result
@@ -36,6 +37,7 @@ const argv = require('wargs')(process.argv.slice(2), {
     s: 'src',
     d: 'dest',
     r: 'refs',
+    D: 'docs',
     t: 'types',
     p: 'prune',
     i: 'ignore',
@@ -137,7 +139,7 @@ function output(name, repository) {
 }
 
 Promise.resolve()
-  .then(() => Service.load(schemas, references))
+  .then(() => Service.load(schemas, references, null, argv.flags.docs))
   .then(repository => Service.build({ pkg, refs }, repository))
   .then(repository => {
     if (argv.flags.typescript) {

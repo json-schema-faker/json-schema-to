@@ -1,5 +1,5 @@
 extend type Query {
-  someStuff(foo: String = "", bar: Boolean = false): BazType
+  someStuff: BazType
 }
 type BazType {
   value: String!
