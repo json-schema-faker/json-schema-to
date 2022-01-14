@@ -68,7 +68,18 @@
                     "type": "string"
                   },
                   "required": {
-                    "type": "boolean"
+                    "oneOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "pattern": "[A-Z][a-z0-9]+"
+                        }
+                      }
+                    ]
                   }
                 }
               }
