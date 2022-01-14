@@ -43,8 +43,8 @@
     "fs-extra": "^10.0.0",
     "glob": "^7.1.2",
     "is-my-json-valid": "^2.20.0",
-    "wargs": "^0.9.1",
-    "yamljs": "^0.3.0"
+    "js-yaml": "^4.1.0",
+    "wargs": "^0.9.1"
   },
   "devDependencies": {
     "@graphql-tools/git-loader": ">=6.2.6",
