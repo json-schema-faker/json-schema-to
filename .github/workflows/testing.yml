@@ -12,10 +12,19 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
       - uses: actions/setup-node@v1
+
+      - uses: actions/cache@v3
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+
       - run: |
           export CODECOV_TOKEN=${{ secrets.CODECOV_TOKEN }}
-          npm ci
+          npm i
           npm run test:ci
           npm run codecov
