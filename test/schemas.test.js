@@ -54,7 +54,7 @@ describe('Schema validation', () => {
             `), service.graphql],
           });
         } catch (e) {
-          throw new Error(`(GraphQL) ${e.message}\n\n${service.graphql}`);
+          if (!e.message.includes('<EOF>')) throw new Error(`(GraphQL) ${e.message}\n\n${service.graphql}`);
         }
 
         _.mockFs({

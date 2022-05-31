@@ -1,9 +1,9 @@
 const mockFs = require('mock-fs');
 
 const gql = require('graphql');
-const gqltools = require('graphql-tools');
+const gqltools = require('@graphql-tools/schema');
 
-const grpc = require('grpc');
+const grpc = require('@grpc/grpc-js');
 const fs = require('fs-extra');
 
 const grpcloader = require('@grpc/proto-loader');

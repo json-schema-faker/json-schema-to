@@ -133,42 +133,43 @@ describe('GraphQL & Protobuf', () => {
           },
         });
 
-        serverInstance.bind('0.0.0.0:50051', _.ServerCredentials.createInsecure());
-        serverInstance.start();
-
         return new Promise(done => {
-          const { TestService } = packageObject.foo_bar;
-          const gateway = new TestService('0.0.0.0:50051', _.credentials.createInsecure());
+          serverInstance.bindAsync('0.0.0.0:50051', _.ServerCredentials.createInsecure(), () => {
+            serverInstance.start();
 
-          const payload = {
-            value: 'OK',
-            example: 4.20,
-          };
+            const { TestService } = packageObject.foo_bar;
+            const gateway = new TestService('0.0.0.0:50051', _.credentials.createInsecure());
 
-          const deadline = new Date();
+            const payload = {
+              value: 'OK',
+              example: 4.20,
+            };
 
-          deadline.setSeconds(deadline.getSeconds() + 3);
+            const deadline = new Date();
 
-          gateway.something(payload, { deadline }, (error, response) => {
-            if (error) {
-              console.log('# Protobuf');
-              console.log(protoCode);
-              console.error(error);
-              return done();
-            }
+            deadline.setSeconds(deadline.getSeconds() + 3);
 
-            const validate = _.is(service.$refs.Test, {
-              schemas: service.$refs,
-            });
+            gateway.something(payload, { deadline }, (error, response) => {
+              if (error) {
+                console.log('# Protobuf');
+                console.log(protoCode);
+                console.error(error);
+                return done();
+              }
 
-            return Promise.resolve()
-              .then(() => validate(response))
-              .then(() => {
-                done();
-                expect(error).to.be.null;
-                expect(validate.errors).to.be.null;
-                expect(response).to.eql({ id: 99, value: 'BAR', values: ['OK'] });
+              const validate = _.is(service.$refs.Test, {
+                schemas: service.$refs,
               });
+
+              return Promise.resolve()
+                .then(() => validate(response))
+                .then(() => {
+                  done();
+                  expect(error).to.be.null;
+                  expect(validate.errors).to.be.null;
+                  expect(response).to.eql({ id: 99, value: 'BAR', values: ['OK'] });
+                });
+            });
           });
         });
       } catch (e) {

@@ -40,14 +40,16 @@
   "author": "Alvaro Cabrera <pateketrueke@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "fs-extra": "^10.0.0",
+    "fs-extra": "~9.1.0",
     "glob": "^7.1.2",
     "is-my-json-valid": "^2.20.0",
     "js-yaml": "^4.1.0",
     "wargs": "^0.9.1"
   },
   "devDependencies": {
-    "@graphql-tools/git-loader": ">=6.2.6",
+    "@graphql-tools/git-loader": "6.2.6",
+    "@graphql-tools/schema": "^8.3.13",
+    "@grpc/grpc-js": "^1.6.7",
     "@grpc/proto-loader": "^0.6.4",
     "chai": "^4.1.2",
     "codecov": "^3.8.2",
@@ -55,15 +57,8 @@
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.13.0",
     "graphql": "^15.3.0",
-    "graphql-tools": "^7.0.5",
-    "grpc": "^1.13.1",
-    "lodash": ">=4.17.19",
-    "minimist": ">=0.2.1",
     "mocha": "^7.2.0",
     "mock-fs": "^4.14.0",
-    "node-fetch": ">=2.6.1",
-    "nyc": "^15.0.0",
-    "ws": ">=7.4.6",
-    "yargs-parser": ">=13.1.2"
+    "nyc": "^15.0.0"
   }
 }
