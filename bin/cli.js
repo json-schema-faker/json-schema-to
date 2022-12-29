@@ -8,6 +8,7 @@ JSON-Schema To ≤GraphQL|Protobuf|Code≥.™
   -d, --dest        Output definitions to this directory (default 'generated')
   -p, --prune       Remove generated files before writing new ones
 
+  -m, --esm         Ensure generated code is ESM (default is CommonJS)
   -k, --pkg         Package name for generated services (--protobuf only)
   -r, --refs        External imports for generated services (--protobuf only)
 
@@ -30,10 +31,11 @@ Examples:
 `;
 
 const argv = require('wargs')(process.argv.slice(2), {
-  boolean: 'bpq',
+  boolean: 'bpqm',
   alias: {
     w: 'cwd',
     k: 'pkg',
+    m: 'esm',
     s: 'src',
     d: 'dest',
     r: 'refs',
@@ -89,6 +91,10 @@ function run(id, task) {
     process.stderr.write(`\r\x1b[31m${e.stack}\x1b[0m\n`);
     process.exit(1);
   }
+}
+
+function fname(file) {
+  return path.basename(file).replace(/\b[a-z]/g, _=> _.toUpperCase());
 }
 
 function clear(pattern, baseDir) {
@@ -175,14 +181,27 @@ Promise.resolve()
           const key = (def.options && def.options.database) || 'default';
 
           if (!groups[key]) groups[key] = [];
-          groups[key].push(`  require('./${schema}.json'),\n`);
+          groups[key].push(schema);
         });
 
         write(`${common}.js`, () => {
-          return Object.keys(groups).reduce((memo, cur) => {
-            memo.push(`module.exports.${cur} = [\n${groups[cur].join('')}].concat(require('./${common}.json'));\n`);
-            return memo;
-          }, [repository.enums]).join('');
+          const stack = [repository.enums];
+
+          Object.keys(groups).forEach(cur => {
+            if (argv.flags.esm) {
+              stack.unshift(groups[cur].map(x => `import ${fname(x)}Json from './${x}.json' assert { type: 'json' };\n`).join(''));
+              stack.unshift(`import ${common}Json from './${common}.json' assert { type: 'json' };\n`);
+              stack.push(`__factory['@${cur}'] = [\n${groups[cur].map(x => `  ${fname(x)}Json`).join(',\n')}].concat(${common}Json);\n`);
+            } else {
+              stack.push(`__factory['@${cur}'] = [\n${
+                groups[cur].map(x => `  require('./${x}.json'),\n`).join('')
+              }].concat(require('./${common}.json'));\n`);
+            }
+          });
+
+          stack.push(argv.flags.esm ? 'export default __factory;\n' : 'module.exports = __factory;\n');
+
+          return `/* eslint-disable */\n${stack.join('')}`;
         });
       }
     }
