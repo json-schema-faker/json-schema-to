@@ -185,7 +185,7 @@ Promise.resolve()
         });
 
         write(`${common}.js`, () => {
-          const stack = [repository.enums];
+          const stack = [repository.enums.buffer];
 
           Object.keys(groups).forEach(cur => {
             if (argv.flags.esm) {
@@ -198,6 +198,12 @@ Promise.resolve()
               }].concat(require('./${common}.json'));\n`);
             }
           });
+
+          if (repository.enums.set.length > 0) {
+            repository.enums.set.forEach((x, i) => stack.push(`${
+              argv.flags.esm ? 'export const ' : '__factory.'
+            }${x} = __ref(__enums[${i}][1], '${x}');\n`));
+          }
 
           stack.push(argv.flags.esm ? 'export default __factory;\n' : 'module.exports = __factory;\n');
 
