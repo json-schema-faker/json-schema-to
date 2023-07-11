@@ -44,6 +44,7 @@ const argv = require('wargs')(process.argv.slice(2), {
     p: 'prune',
     i: 'ignore',
     c: 'common',
+    M: 'module',
     b: 'bundle',
     q: 'queries',
   },
@@ -131,7 +132,7 @@ function output(name, repository) {
         index += `export { default as ${_name} } from './${sub.key}.gql';\n`;
       });
 
-      write('queries/index.js', () => index);
+      write(`queries/index.${argv.flags.esm && argv.flags.module ? 'mjs' : 'js'}`, () => index);
     }
   }
 
@@ -184,7 +185,7 @@ Promise.resolve()
           groups[key].push(schema);
         });
 
-        write(`${common}.js`, () => {
+        write(`${common}.${argv.flags.esm && argv.flags.module ? 'mjs' : 'js'}`, () => {
           const stack = [repository.enums.buffer];
 
           Object.keys(groups).forEach(cur => {
