@@ -4,7 +4,7 @@
   "description": "JSON-Schema To ≤GraphQL|Protobuf|Code≥.™",
   "main": "index.js",
   "bin": {
-    "json-schema-to": "bin/cli"
+    "json-schema-to": "bin/cli.js"
   },
   "engines": {
     "node": ">= 8"
