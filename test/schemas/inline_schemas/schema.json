@@ -1,5 +1,5 @@
 {
-  "id": "Root",
+  "$id": "Root",
   "type": "object",
   "properties": {
     "items": {

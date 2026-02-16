@@ -1,11 +1,11 @@
 {
-  "id": "Model",
+  "$id": "Model",
   "properties": {
     "noop": {
       "type": "integer"
     }
   },
-  "definitions": {
+  "$defs": {
     "WithEnumType": {
       "properties": {
         "role": {

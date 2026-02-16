@@ -1,5 +1,5 @@
 {
-  "id": "Test",
+  "$id": "Test",
   "type": "object",
   "properties": {
     "value": {
@@ -9,7 +9,7 @@
   "required": [
     "value"
   ],
-  "definitions": {
+  "$defs": {
     "Foo": {
       "type": "number"
     },

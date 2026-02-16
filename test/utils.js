@@ -8,9 +8,16 @@ const fs = require('fs-extra');
 
 const grpcloader = require('@grpc/proto-loader');
 
-const is = require('is-my-json-valid');
+const Ajv = require('ajv/dist/2020');
 
 const utils = require('../lib/utils');
+
+function is(schema, opts) {
+  const ajv = new Ajv({
+    schemas: (opts && opts.schemas) ? Object.values(opts.schemas) : [],
+  });
+  return ajv.compile(schema);
+}
 
 module.exports = {
   makeExecutableSchema: gqltools.makeExecutableSchema,

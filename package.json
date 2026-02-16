@@ -7,7 +7,7 @@
     "json-schema-to": "bin/cli.js"
   },
   "engines": {
-    "node": ">= 8"
+    "node": ">= 12"
   },
   "files": [
     "bin/*",
@@ -40,9 +40,9 @@
   "author": "Alvaro Cabrera <pateketrueke@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "ajv": "^8.18.0",
     "fs-extra": "^11.1.1",
     "glob": "^10.3.3",
-    "is-my-json-valid": "^2.20.0",
     "js-yaml": "^4.1.0",
     "wargs": "^0.10.0"
   },

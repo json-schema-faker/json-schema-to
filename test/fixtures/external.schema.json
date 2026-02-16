@@ -1,6 +1,6 @@
 {
-  "id": "externalTypes",
-  "definitions": {
+  "$id": "externalTypes",
+  "$defs": {
     "justAString": {
       "type": "string"
     },

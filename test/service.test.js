@@ -9,7 +9,7 @@ const Service = require('../lib/service');
 
 describe('Service class', () => {
   it('should handle given enumerations', () => {
-    const service = Service.from({ id: 'Test' });
+    const service = Service.from({ $id: 'Test' });
     const test = service.enumerate(['A', 'B', 'C']);
 
     expect(test.A).to.eql('A');
@@ -18,13 +18,56 @@ describe('Service class', () => {
     expect(() => test[3]).to.throw(/Missing value for 'enum\[3\]'/);
   });
 
-  it('should handle single-model repositories', () => {
+  it('should normalize draft-04 keywords (id, definitions, #/definitions/) to 2020-12', () => {
     const PK = {
       id: 'PK',
       type: 'integer',
     };
-    const Util = {
+    const Defs = {
+      id: 'Defs',
       definitions: {
+        someEnum: {
+          enum: ['X', 'Y'],
+        },
+      },
+    };
+    const Item = {
+      id: 'Item',
+      type: 'object',
+      properties: {
+        id: { $ref: 'PK' },
+        kind: { $ref: 'Defs#/definitions/someEnum' },
+      },
+      service: {
+        calls: [{
+          get: 'getItem',
+          resp: 'Item',
+        }],
+      },
+    };
+
+    const model = Service.from(Item, [PK, Defs]);
+
+    expect(model.typescript.trim()).to.eql(utils.trim(`
+      export type Item = {
+        id?: PK;
+        kind?: someEnum;
+      };
+      export type PK = number;
+      export enum someEnum {
+        X = 'X',
+        Y = 'Y',
+      }
+    `));
+  });
+
+  it('should handle single-model repositories', () => {
+    const PK = {
+      $id: 'PK',
+      type: 'integer',
+    };
+    const Util = {
+      $defs: {
         someEnum: {
           enum: ['A', 'B', 'C'],
         },
@@ -34,7 +77,7 @@ describe('Service class', () => {
       },
     };
     const Value = {
-      id: 'Value',
+      $id: 'Value',
       type: 'object',
       properties: {
         name: {
@@ -43,7 +86,7 @@ describe('Service class', () => {
       },
     };
     const Other = {
-      id: 'Other',
+      $id: 'Other',
       type: 'object',
       properties: {
         list: {
@@ -55,7 +98,7 @@ describe('Service class', () => {
       },
     };
     const Example = {
-      id: 'Example',
+      $id: 'Example',
       type: 'object',
       properties: {
         id: {

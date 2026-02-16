@@ -1,12 +1,12 @@
 {
-  "id": "Test",
+  "$id": "Test",
   "type": "object",
   "properties": {
     "id": {
-      "$ref": "dataTypes#/definitions/primaryKey"
+      "$ref": "dataTypes#/$defs/primaryKey"
     },
     "value": {
-      "$ref": "externalTypes#/definitions/anEnum"
+      "$ref": "externalTypes#/$defs/anEnum"
     },
     "values": {
       "type": "array",
@@ -15,12 +15,12 @@
       }
     }
   },
-  "definitions": {
+  "$defs": {
     "TestInput": {
       "type": "object",
       "properties": {
         "id": {
-          "$ref": "dataTypes#/definitions/primaryKey"
+          "$ref": "dataTypes#/$defs/primaryKey"
         }
       }
     }

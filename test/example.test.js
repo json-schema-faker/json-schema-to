@@ -12,7 +12,7 @@ const Service = require('../lib/service');
 describe('GraphQL & Protobuf', () => {
   it('should integrate seamlessly', () => {
     const service = Service.from({
-      id: 'Test',
+      $id: 'Test',
       service: {
         pkg: 'foo-bar',
         refs: ['external'],

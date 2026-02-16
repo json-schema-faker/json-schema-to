@@ -1,24 +1,24 @@
 [
   {
-    "id": "dataTypes",
-    "definitions": {
+    "$id": "dataTypes",
+    "$defs": {
       "primaryKey": {
         "type": "integer"
       }
     }
   },
   {
-    "id": "ItemValue",
-    "$ref": "externalTypes#/definitions/justAString"
+    "$id": "ItemValue",
+    "$ref": "externalTypes#/$defs/justAString"
   },
   {
-    "id": "Value",
+    "$id": "Value",
     "properties": {
       "example": {
         "type": "number"
       },
       "other": {
-        "$ref": "Test#/definitions/TestInput"
+        "$ref": "Test#/$defs/TestInput"
       }
     },
     "required": ["example"]

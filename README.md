@@ -23,14 +23,14 @@ This module is under development, we're missing:
 JSON-Schema, GraphQL and Protobuf are generated from YAML definitions, e.g.
 
 ```yaml
-id: User
+$id: User
 service:
   calls:
   - set: updatePassword
     resp: User
     input: UpdatePasswordParams
     params: UpdatePasswordRequest
-definitions:
+$defs:
   UpdatePasswordParams:
   UpdatePasswordRequest:
 ```
@@ -39,7 +39,7 @@ This definition is also a JSON-Schema definition.
 
 > Actually, it can be a `.json` file to but YAML format it's easier to maintain.
 
-Due `resp`, `input` and `params` are schema identifiers they'll be looked-up from all available schemas or from `#/definitions`  on the current file.
+Due `resp`, `input` and `params` are schema identifiers they'll be looked-up from all available schemas or from `#/$defs`  on the current file.
 
 Options for `calls` are:
 
@@ -114,15 +114,17 @@ const value: someEnum = someEnum.SOME_VALUE;
 
 ### Supported keywords
 
-Currently, a small subset of keywords from JSON-Schema v4 are supported:
+Both JSON Schema draft-04 (`id`, `definitions`, `#/definitions/`) and 2020-12 (`$id`, `$defs`, `#/$defs/`) keywords are accepted. Draft-04 keywords are normalized to 2020-12 internally.
 
-- `id` &mdash; Used to declare types or services, it MUST be unique
+Currently, a small subset of keywords from JSON-Schema 2020-12 are supported:
+
+- `$id` &mdash; Used to declare types or services, it MUST be unique
 - `$ref` &mdash; Dereferencing is resolved against defined refs only
 - `enum` &mdash; Fixed set of values to enumerate, strings only
 - `type` &mdash; Declare the used type of any given definition
 - `items` &mdash; Standard definition of repeated objects, array will not work
 - `required` &mdash; List of required properties to declare in the generated types
 - `properties` &mdash; Standard set of properties from a given object, they are the type props
-- `definitions` &mdash; Additional types to export, if no `id` is given then its basename will be used
+- `$defs` &mdash; Additional types to export, if no `$id` is given then its basename will be used
 
 > ⚠ More keywords can be implemented later, by now complete support is no a requirement.

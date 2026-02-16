@@ -1,28 +1,29 @@
 {
-  "id": "DSL",
-  "definitions": {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "DSL",
+  "$defs": {
     "Definition": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "id": {
+        "$id": {
           "type": "string",
           "pattern": "[A-Z][a-z0-9]+"
         },
-        "definitions": {
+        "$defs": {
           "type": "object"
         }
       },
       "required": [
-        "id",
-        "definitions"
+        "$id",
+        "$defs"
       ]
     },
     "Service": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "id": {
+        "$id": {
           "type": "string",
           "pattern": "[A-Z][a-z0-9]+"
         },
@@ -89,7 +90,7 @@
             "calls"
           ]
         },
-        "definitions": {
+        "$defs": {
           "type": "object",
           "additionalProperties": false,
           "patternProperties": {
@@ -117,7 +118,7 @@
         }
       },
       "required": [
-        "id",
+        "$id",
         "service"
       ]
     },
@@ -126,7 +127,7 @@
         {
           "type": "object",
           "properties": {
-            "id": {
+            "$id": {
               "type": "string",
               "pattern": "[A-Z][a-z0-9]+"
             },
@@ -141,7 +142,7 @@
             }
           },
           "required": [
-            "id",
+            "$id",
             "properties"
           ]
         },

@@ -1,11 +1,11 @@
 {
-  "id": "Model",
+  "$id": "Model",
   "properties": {
     "noop": {
       "type": "integer"
     }
   },
-  "definitions": {
+  "$defs": {
     "FromId": {
       "properties": {
         "prop": {
@@ -18,7 +18,7 @@
     },
     "FromRef": {
       "items": {
-        "$ref": "#/definitions/Target"
+        "$ref": "#/$defs/Target"
       }
     },
     "Target": {

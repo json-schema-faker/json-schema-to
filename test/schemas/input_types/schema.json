@@ -1,5 +1,5 @@
 {
-  "id": "Test",
+  "$id": "Test",
   "service": {
     "calls": [
       {
@@ -13,7 +13,7 @@
       }
     ]
   },
-  "definitions": {
+  "$defs": {
     "FooType": {
       "type": "string"
     },
